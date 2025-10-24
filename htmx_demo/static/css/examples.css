@@ -1,0 +1,350 @@
+/* Example Demonstration Styles */
+
+/* Comparison Layout */
+.comparison-section {
+    margin-bottom: 4rem;
+    padding-bottom: 3rem;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.comparison-section:last-child {
+    border-bottom: none;
+}
+
+.comparison-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.comparison-side {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1.5rem;
+    background-color: #fff;
+}
+
+.comparison-side h4 {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.tech-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    margin-left: 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.tech-badge.jquery {
+    background-color: #0769ad;
+    color: white;
+}
+
+.tech-badge.htmx {
+    background-color: #3d72a4;
+    color: white;
+}
+
+/* Loading States */
+.htmx-indicator {
+    display: none;
+    opacity: 0;
+    transition: opacity 200ms ease-in;
+}
+
+.htmx-request .htmx-indicator {
+    display: inline-block;
+    opacity: 1;
+}
+
+.htmx-request.htmx-indicator {
+    display: inline-block;
+    opacity: 1;
+}
+
+/* Loading spinner */
+.spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Code Display */
+.code-example {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-top: 1rem;
+    overflow-x: auto;
+}
+
+.code-example pre {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.code-example code {
+    color: #212529;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Callout boxes */
+.callout {
+    padding: 1rem;
+    margin: 1rem 0;
+    border-left: 4px solid;
+    border-radius: 0.25rem;
+}
+
+.callout-info {
+    background-color: #d1ecf1;
+    border-color: #0c5460;
+    color: #0c5460;
+}
+
+.callout-success {
+    background-color: #d4edda;
+    border-color: #155724;
+    color: #155724;
+}
+
+.callout-warning {
+    background-color: #fff3cd;
+    border-color: #856404;
+    color: #856404;
+}
+
+.callout-danger {
+    background-color: #f8d7da;
+    border-color: #721c24;
+    color: #721c24;
+}
+
+/* Product Cards */
+.product-card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s;
+}
+
+.product-card:hover {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.product-card h5 {
+    margin-bottom: 0.5rem;
+}
+
+.product-card .price {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+.product-card .badge {
+    margin-right: 0.5rem;
+}
+
+/* Contact Results */
+.contact-item {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background-color: #fff;
+}
+
+.contact-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Task List */
+.task-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+    background-color: #fff;
+    transition: all 0.2s;
+}
+
+.task-item.completed {
+    background-color: #f8f9fa;
+    opacity: 0.7;
+}
+
+.task-item.completed .task-title {
+    text-decoration: line-through;
+    color: #6c757d;
+}
+
+.task-item .task-title {
+    flex: 1;
+    margin: 0 1rem;
+}
+
+.task-item .btn {
+    margin-left: 0.5rem;
+}
+
+/* System Status */
+.status-card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #fff;
+}
+
+.status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.status-indicator.operational {
+    background-color: #28a745;
+}
+
+.status-indicator.degraded {
+    background-color: #ffc107;
+}
+
+.status-indicator.partial_outage {
+    background-color: #fd7e14;
+}
+
+.status-indicator.major_outage {
+    background-color: #dc3545;
+}
+
+/* Form Validation */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.success-message {
+    color: #28a745;
+    padding: 1rem;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 0.25rem;
+    margin-top: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .comparison-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Fade in/out animations for HTMX */
+.fade-in {
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-out {
+    animation: fadeOut 0.3s;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* Highlight new items */
+.htmx-added {
+    animation: highlight 1s ease-in-out;
+}
+
+@keyframes highlight {
+    0% { background-color: #fff3cd; }
+    100% { background-color: transparent; }
+}
+
+/* Deep dive page specific styles */
+.pattern-section {
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.pattern-section h3 {
+    color: #3d72a4;
+    margin-bottom: 1.5rem;
+}
+
+.pattern-section .pattern-description {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-left: 4px solid #3d72a4;
+    margin-bottom: 1.5rem;
+}
+
+/* Navigation */
+.examples-nav {
+    background-color: #fff;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+}
+
+.examples-nav .nav-link {
+    color: #495057;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+}
+
+.examples-nav .nav-link:hover {
+    background-color: #f8f9fa;
+    color: #3d72a4;
+}
+
+.examples-nav .nav-link.active {
+    background-color: #3d72a4;
+    color: white;
+}
+

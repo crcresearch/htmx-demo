@@ -1,0 +1,525 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dependent Dropdowns - jQuery vs HTMX{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/examples.css' %}" rel="stylesheet">
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <style>
+    /* Constrain comparison columns to 50% width */
+    .comparison-side {
+      min-width: 0;
+      overflow: hidden;
+    }
+    .code-tab {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .code-tab pre {
+      margin: 0;
+      border-radius: 0.375rem;
+      margin-bottom: 0;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab pre[class*="language-"] {
+      margin: 0;
+      border-radius: 0.375rem;
+      background: #2d2d2d;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab code {
+      white-space: pre;
+      display: block;
+    }
+    .code-section {
+      margin-bottom: 1.5rem;
+    }
+    .code-section h6 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 0.25rem;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="examples-nav">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:index' %}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'examples:comparison' %}">Side-by-Side Comparison</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:htmx_deep_dive' %}">HTMX Deep Dive</a>
+      </li>
+    </ul>
+  </div>
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'examples:comparison' %}">Comparison</a></li>
+      <li class="breadcrumb-item active">Dependent Dropdowns</li>
+    </ol>
+  </nav>
+
+  <h1 class="mb-4">Pattern 6: Dependent Dropdowns</h1>
+  
+  <div class="alert alert-info">
+    <strong>Scenario:</strong> Country, State, and City cascading selects.
+    <br><strong>Try it:</strong> Select a country to load states, then select a state to load cities.
+    <br><strong>Compare:</strong> Switch to the "Code" tab to see implementation differences.
+  </div>
+
+  <div class="comparison-container">
+    <!-- jQuery Implementation -->
+    <div class="comparison-side">
+      <h4>
+        jQuery/AJAX
+        <span class="tech-badge jquery">jQuery</span>
+      </h4>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#jquery-interface" type="button">
+            Interface
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#jquery-code" type="button">
+            Code
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- jQuery Interface Tab -->
+        <div class="tab-pane fade show active" id="jquery-interface">
+          <div class="mt-3">
+            <form>
+              <div class="form-group">
+                <label for="jquery-country">Country</label>
+                <select class="form-control" id="jquery-country">
+                  <option value="">Select a country</option>
+                  <option value="1">United States</option>
+                  <option value="2">Canada</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="jquery-state">State/Province</label>
+                <select class="form-control" id="jquery-state" disabled>
+                  <option value="">Select a state</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="jquery-city">City</label>
+                <select class="form-control" id="jquery-city" disabled>
+                  <option value="">Select a city</option>
+                </select>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- jQuery Code Tab -->
+        <div class="tab-pane fade" id="jquery-code">
+          <div class="code-tab">
+            <div class="code-section">
+              <h6>HTML Template</h6>
+              <pre><code class="language-markup">&lt;form&gt;
+  &lt;div class="form-group"&gt;
+    &lt;label for="jquery-country"&gt;Country&lt;/label&gt;
+    &lt;select class="form-control" id="jquery-country"&gt;
+      &lt;option value=""&gt;Select a country&lt;/option&gt;
+      &lt;option value="1"&gt;United States&lt;/option&gt;
+      &lt;option value="2"&gt;Canada&lt;/option&gt;
+    &lt;/select&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="form-group"&gt;
+    &lt;label for="jquery-state"&gt;State/Province&lt;/label&gt;
+    &lt;select class="form-control" id="jquery-state" disabled&gt;
+      &lt;option value=""&gt;Select a state&lt;/option&gt;
+    &lt;/select&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="form-group"&gt;
+    &lt;label for="jquery-city"&gt;City&lt;/label&gt;
+    &lt;select class="form-control" id="jquery-city" disabled&gt;
+      &lt;option value=""&gt;Select a city&lt;/option&gt;
+    &lt;/select&gt;
+  &lt;/div&gt;
+&lt;/form&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>JavaScript (jQuery)</h6>
+              <pre><code class="language-javascript">// Handle country selection
+$('#jquery-country').on('change', function() {
+  const countryId = $(this).val();
+  
+  // Reset and disable dependent dropdowns
+  $('#jquery-state').prop('disabled', true)
+    .html('&lt;option&gt;Loading...&lt;/option&gt;');
+  $('#jquery-city').prop('disabled', true)
+    .html('&lt;option&gt;Select a city&lt;/option&gt;');
+  
+  if (!countryId) {
+    $('#jquery-state').html('&lt;option&gt;Select a state&lt;/option&gt;');
+    return;
+  }
+  
+  // Fetch states for selected country
+  $.ajax({
+    url: '/examples/api/states/',
+    data: { country_id: countryId },
+    success: function(response) {
+      // Build option elements from JSON
+      let html = '&lt;option value=""&gt;Select a state&lt;/option&gt;';
+      response.states.forEach(function(state) {
+        html += '&lt;option value="' + state.id + '"&gt;' + 
+                state.name + '&lt;/option&gt;';
+      });
+      
+      // Update and enable state dropdown
+      $('#jquery-state').html(html).prop('disabled', false);
+    }
+  });
+});
+
+// Handle state selection (same pattern)
+$('#jquery-state').on('change', function() {
+  const stateId = $(this).val();
+  
+  $('#jquery-city').prop('disabled', true)
+    .html('&lt;option&gt;Loading...&lt;/option&gt;');
+  
+  if (!stateId) {
+    $('#jquery-city').html('&lt;option&gt;Select a city&lt;/option&gt;');
+    return;
+  }
+  
+  // Fetch cities for selected state
+  $.ajax({
+    url: '/examples/api/cities/',
+    data: { state_id: stateId },
+    success: function(response) {
+      let html = '&lt;option value=""&gt;Select a city&lt;/option&gt;';
+      response.cities.forEach(function(city) {
+        html += '&lt;option value="' + city.id + '"&gt;' + 
+                city.name + '&lt;/option&gt;';
+      });
+      $('#jquery-city').html(html).prop('disabled', false);
+    }
+  });
+});
+
+// Key challenges:
+// 1. Manual enable/disable state management
+// 2. Building HTML from JSON for each level
+// 3. Duplicate AJAX logic for each cascade
+// 4. Manual reset logic for dependent dropdowns</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Django Views (Python)</h6>
+              <pre><code class="language-python">@require_http_methods(["GET"])
+def states_ajax(request):
+    """AJAX endpoint - returns JSON array of states."""
+    country_id = request.GET.get("country_id")
+    
+    states = State.objects.filter(country_id=country_id)
+    
+    data = {
+        "states": [
+            {"id": state.id, "name": state.name}
+            for state in states
+        ]
+    }
+    
+    return JsonResponse(data)
+
+@require_http_methods(["GET"])
+def cities_ajax(request):
+    """AJAX endpoint - returns JSON array of cities."""
+    state_id = request.GET.get("state_id")
+    
+    cities = City.objects.filter(state_id=state_id)
+    
+    data = {
+        "cities": [
+            {"id": city.id, "name": city.name}
+            for city in cities
+        ]
+    }
+    
+    return JsonResponse(data)</code></pre>
+            </div>
+
+            <div class="alert alert-warning">
+              <strong>Total Lines:</strong> ~25 lines (HTML) + ~55 lines (JS) = <strong>~80 lines</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HTMX Implementation -->
+    <div class="comparison-side">
+      <h4>
+        HTMX
+        <span class="tech-badge htmx">HTMX</span>
+      </h4>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#htmx-interface" type="button">
+            Interface
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#htmx-code" type="button">
+            Code
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- HTMX Interface Tab -->
+        <div class="tab-pane fade show active" id="htmx-interface">
+          <div class="mt-3">
+            <form>
+              <div class="form-group">
+                <label for="htmx-country">Country</label>
+                <select class="form-control" 
+                        id="htmx-country"
+                        name="country_id"
+                        hx-get="{% url 'examples:states_htmx' %}"
+                        hx-target="#htmx-state"
+                        hx-trigger="change">
+                  <option value="">Select a country</option>
+                  <option value="1">United States</option>
+                  <option value="2">Canada</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="htmx-state">State/Province</label>
+                <select class="form-control" id="htmx-state" name="state_id"
+                        hx-get="{% url 'examples:cities_htmx' %}"
+                        hx-target="#htmx-city"
+                        hx-trigger="change">
+                  <option value="">Select a state</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="htmx-city">City</label>
+                <select class="form-control" id="htmx-city" name="city_id">
+                  <option value="">Select a city</option>
+                </select>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- HTMX Code Tab -->
+        <div class="tab-pane fade" id="htmx-code">
+          <div class="code-tab">
+            <div class="code-section">
+              <h6>HTML Template (with HTMX attributes)</h6>
+              <pre><code class="language-markup">&lt;form&gt;
+  &lt;div class="form-group"&gt;
+    &lt;label&gt;Country&lt;/label&gt;
+    &lt;select name="country_id"
+            hx-get="{% templatetag openblock %} url 'examples:states_htmx' {% templatetag closeblock %}"
+            hx-target="#htmx-state"
+            hx-trigger="change"&gt;
+      &lt;option value=""&gt;Select a country&lt;/option&gt;
+      &lt;option value="1"&gt;United States&lt;/option&gt;
+      &lt;option value="2"&gt;Canada&lt;/option&gt;
+    &lt;/select&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="form-group"&gt;
+    &lt;label&gt;State/Province&lt;/label&gt;
+    &lt;select id="htmx-state" 
+            name="state_id"
+            hx-get="{% templatetag openblock %} url 'examples:cities_htmx' {% templatetag closeblock %}"
+            hx-target="#htmx-city"
+            hx-trigger="change"&gt;
+      &lt;option value=""&gt;Select a state&lt;/option&gt;
+    &lt;/select&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="form-group"&gt;
+    &lt;label&gt;City&lt;/label&gt;
+    &lt;select id="htmx-city" name="city_id"&gt;
+      &lt;option value=""&gt;Select a city&lt;/option&gt;
+    &lt;/select&gt;
+  &lt;/div&gt;
+&lt;/form&gt;
+
+&lt;!-- That's it! No JavaScript needed --&gt;
+&lt;!-- The 'name' attribute automatically sends the value --&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Server Response (Partial Template)</h6>
+              <pre><code class="language-markup">&lt;!-- states_options.html --&gt;
+&lt;option value=""&gt;Select a state&lt;/option&gt;
+{% templatetag openblock %} for state in states {% templatetag closeblock %}
+  &lt;option value="{% templatetag openvariable %} state.id {% templatetag closevariable %}"&gt;
+    {% templatetag openvariable %} state.name {% templatetag closevariable %}
+  &lt;/option&gt;
+{% templatetag openblock %} endfor {% templatetag closeblock %}
+
+&lt;!-- cities_options.html --&gt;
+&lt;option value=""&gt;Select a city&lt;/option&gt;
+{% templatetag openblock %} for city in cities {% templatetag closeblock %}
+  &lt;option value="{% templatetag openvariable %} city.id {% templatetag closevariable %}"&gt;
+    {% templatetag openvariable %} city.name {% templatetag closevariable %}
+  &lt;/option&gt;
+{% templatetag openblock %} endfor {% templatetag closeblock %}</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Django Views (Python)</h6>
+              <pre><code class="language-python">@require_http_methods(["GET"])
+def states_htmx(request):
+    """HTMX endpoint - returns option elements."""
+    country_id = request.GET.get("country_id")
+    
+    states = State.objects.filter(country_id=country_id)
+    
+    # Return HTML option elements
+    return render(
+        request,
+        "examples/partials/states_options.html",
+        {"states": states}
+    )
+
+@require_http_methods(["GET"])
+def cities_htmx(request):
+    """HTMX endpoint - returns option elements."""
+    state_id = request.GET.get("state_id")
+    
+    cities = City.objects.filter(state_id=state_id)
+    
+    # Return HTML option elements
+    return render(
+        request,
+        "examples/partials/cities_options.html",
+        {"cities": cities}
+    )
+
+# Key differences:
+# - Returns HTML, not JSON
+# - No enable/disable logic needed
+# - Server generates option elements
+# - HTMX handles cascade automatically</code></pre>
+            </div>
+
+            <div class="alert alert-success">
+              <strong>Total Lines:</strong> ~35 lines (HTML) + 0 lines (JS) = <strong>~35 lines</strong>
+              <br><strong>Code Reduction:</strong> 56% less code!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-info mt-3">
+    <strong>Key Differences:</strong>
+    <ul class="mb-0">
+      <li><strong>jQuery:</strong> Manual change event handlers, enable/disable logic, and option population (~80 lines)</li>
+      <li><strong>HTMX:</strong> Declarative triggers; server returns option elements directly (~35 lines)</li>
+      <li><strong>State Management:</strong> jQuery manually enables/disables; HTMX just replaces content</li>
+      <li><strong>Data Flow:</strong> jQuery builds HTML from JSON; HTMX uses template-rendered options</li>
+    </ul>
+  </div>
+
+  <div class="mt-4">
+    <nav aria-label="Pattern navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison_dynamic_lists' %}">Previous: Dynamic Lists</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison' %}">All Patterns</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison_polling' %}">Next: Polling</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+{% endblock %}
+
+{% block inline_javascript %}
+  <!-- Prism.js for syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+
+  <script>
+    // jQuery: Dependent Dropdowns
+    $('#jquery-country').on('change', function() {
+      const countryId = $(this).val();
+      $('#jquery-state').prop('disabled', true).html('<option>Loading...</option>');
+      $('#jquery-city').prop('disabled', true).html('<option>Select a city</option>');
+      
+      if (!countryId) {
+        $('#jquery-state').html('<option>Select a state</option>');
+        return;
+      }
+      
+      $.ajax({
+        url: '{% url "examples:states_ajax" %}',
+        data: { country_id: countryId },
+        success: function(response) {
+          let html = '<option value="">Select a state</option>';
+          response.states.forEach(function(state) {
+            html += '<option value="' + state.id + '">' + state.name + '</option>';
+          });
+          $('#jquery-state').html(html).prop('disabled', false);
+        }
+      });
+    });
+    
+    $('#jquery-state').on('change', function() {
+      const stateId = $(this).val();
+      $('#jquery-city').prop('disabled', true).html('<option>Loading...</option>');
+      
+      if (!stateId) {
+        $('#jquery-city').html('<option>Select a city</option>');
+        return;
+      }
+      
+      $.ajax({
+        url: '{% url "examples:cities_ajax" %}',
+        data: { state_id: stateId },
+        success: function(response) {
+          let html = '<option value="">Select a city</option>';
+          response.cities.forEach(function(city) {
+            html += '<option value="' + city.id + '">' + city.name + '</option>';
+          });
+          $('#jquery-city').html(html).prop('disabled', false);
+        }
+      });
+    });
+  </script>
+{% endblock %}

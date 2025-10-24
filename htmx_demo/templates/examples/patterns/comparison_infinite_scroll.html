@@ -1,0 +1,424 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Infinite Scroll - jQuery vs HTMX{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/examples.css' %}" rel="stylesheet">
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <style>
+    /* Constrain comparison columns to 50% width */
+    .comparison-side {
+      min-width: 0;
+      overflow: hidden;
+    }
+    .code-tab {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .code-tab pre {
+      margin: 0;
+      border-radius: 0.375rem;
+      margin-bottom: 0;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab pre[class*="language-"] {
+      margin: 0;
+      border-radius: 0.375rem;
+      background: #2d2d2d;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab code {
+      white-space: pre;
+      display: block;
+    }
+    .code-section {
+      margin-bottom: 1.5rem;
+    }
+    .code-section h6 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 0.25rem;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="examples-nav">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:index' %}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'examples:comparison' %}">Side-by-Side Comparison</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:htmx_deep_dive' %}">HTMX Deep Dive</a>
+      </li>
+    </ul>
+  </div>
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'examples:comparison' %}">Comparison</a></li>
+      <li class="breadcrumb-item active">Infinite Scroll</li>
+    </ol>
+  </nav>
+
+  <h1 class="mb-4">Pattern 3: Infinite Scroll / Lazy Loading</h1>
+  
+  <div class="alert alert-info">
+    <strong>Scenario:</strong> Load more products as you scroll down or click "Load More".
+    <br><strong>Try it:</strong> Scroll down (HTMX) or click button (jQuery) to see pagination in action.
+    <br><strong>Compare:</strong> Switch to the "Code" tab to see implementation differences.
+  </div>
+
+  <div class="comparison-container">
+    <!-- jQuery Implementation -->
+    <div class="comparison-side">
+      <h4>
+        jQuery/AJAX
+        <span class="tech-badge jquery">jQuery</span>
+      </h4>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#jquery-interface" type="button">
+            Interface
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#jquery-code" type="button">
+            Code
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- jQuery Interface Tab -->
+        <div class="tab-pane fade show active" id="jquery-interface">
+          <div id="jquery-product-list" style="max-height: 500px; overflow-y: auto; padding: 1rem; border: 1px solid #dee2e6; border-radius: 0.375rem; background-color: #f8f9fa;" class="mt-3"></div>
+          <div id="jquery-load-more-container" class="text-center mt-3">
+            <button class="btn btn-secondary" id="jquery-load-more">
+              Load More
+              <span class="spinner" id="jquery-load-spinner" style="display: none; margin-left: 0.5rem;"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- jQuery Code Tab -->
+        <div class="tab-pane fade" id="jquery-code">
+          <div class="code-tab">
+            <div class="code-section">
+              <h6>HTML Template</h6>
+              <pre><code class="language-markup">&lt;div id="jquery-product-list" 
+     style="max-height: 500px; 
+            overflow-y: auto; 
+            padding: 1rem; 
+            border: 1px solid #dee2e6; 
+            border-radius: 0.375rem; 
+            background-color: #f8f9fa;"&gt;
+&lt;/div&gt;
+&lt;div id="jquery-load-more-container" class="text-center mt-3"&gt;
+  &lt;button class="btn btn-secondary" id="jquery-load-more"&gt;
+    Load More
+    &lt;span class="spinner" id="jquery-load-spinner"&gt;&lt;/span&gt;
+  &lt;/button&gt;
+&lt;/div&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>JavaScript (jQuery)</h6>
+              <pre><code class="language-javascript">// Track pagination state
+let jqueryCurrentPage = 0;
+let jqueryHasMore = true;
+
+function loadJqueryProducts() {
+  if (!jqueryHasMore) return;
+  
+  $('#jquery-load-spinner').show();
+  jqueryCurrentPage++;
+  
+  $.ajax({
+    url: '/examples/api/products/',
+    data: { page: jqueryCurrentPage },
+    success: function(response) {
+      $('#jquery-load-spinner').hide();
+      
+      // Build HTML from JSON
+      let html = '';
+      response.products.forEach(function(product) {
+        html += '&lt;div class="product-card"&gt;' +
+          '&lt;h5&gt;' + product.name + '&lt;/h5&gt;' +
+          '&lt;p&gt;' + product.description + '&lt;/p&gt;' +
+          '&lt;div class="price"&gt;$' + product.price + '&lt;/div&gt;' +
+          '&lt;span class="badge"&gt;' + product.category + '&lt;/span&gt; ' +
+          (product.in_stock ? 
+            '&lt;span class="badge bg-success"&gt;In Stock&lt;/span&gt;' : 
+            '&lt;span class="badge bg-danger"&gt;Out of Stock&lt;/span&gt;') +
+          '&lt;/div&gt;';
+      });
+      
+      // Append to list
+      $('#jquery-product-list').append(html);
+      
+      // Update state
+      jqueryHasMore = response.has_next;
+      if (!jqueryHasMore) {
+        $('#jquery-load-more-container').html(
+          '&lt;p class="text-muted"&gt;No more products&lt;/p&gt;'
+        );
+      }
+    }
+  });
+}
+
+// Bind button click
+$('#jquery-load-more').on('click', loadJqueryProducts);
+
+// Load first page
+loadJqueryProducts();</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Django View (Python)</h6>
+              <pre><code class="language-python">def products_ajax(request):
+    page = int(request.GET.get("page", 1))
+    per_page = 10
+    
+    products = Product.objects.all()
+    paginator = Paginator(products, per_page)
+    page_obj = paginator.get_page(page)
+    
+    # Return JSON
+    data = {
+        "products": [
+            {
+                "id": p.id,
+                "name": p.name,
+                "description": p.description,
+                "price": str(p.price),
+                "category": p.get_category_display(),
+                "in_stock": p.in_stock,
+            }
+            for p in page_obj
+        ],
+        "has_next": page_obj.has_next(),
+        "next_page": page_obj.next_page_number() 
+                     if page_obj.has_next() else None,
+        "total_pages": paginator.num_pages,
+    }
+    
+    return JsonResponse(data)</code></pre>
+            </div>
+
+            <div class="alert alert-warning">
+              <strong>Total Lines:</strong> ~10 lines (HTML) + ~50 lines (JS) = <strong>~60 lines</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HTMX Implementation -->
+    <div class="comparison-side">
+      <h4>
+        HTMX
+        <span class="tech-badge htmx">HTMX</span>
+      </h4>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#htmx-interface" type="button">
+            Interface
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#htmx-code" type="button">
+            Code
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- HTMX Interface Tab -->
+        <div class="tab-pane fade show active" id="htmx-interface">
+          <div id="htmx-product-list" style="max-height: 500px; overflow-y: auto; padding: 1rem; border: 1px solid #dee2e6; border-radius: 0.375rem; background-color: #f8f9fa;" class="mt-3">
+            <div hx-get="{% url 'examples:products_htmx' %}?page=1"
+                 hx-trigger="load"
+                 hx-swap="outerHTML">
+              <div class="text-center p-3">
+                <span class="spinner"></span> Loading...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HTMX Code Tab -->
+        <div class="tab-pane fade" id="htmx-code">
+          <div class="code-tab">
+            <div class="code-section">
+              <h6>HTML Template (with HTMX attributes)</h6>
+              <pre><code class="language-markup">&lt;div id="htmx-product-list" 
+     style="max-height: 500px; 
+            overflow-y: auto; 
+            padding: 1rem; 
+            border: 1px solid #dee2e6; 
+            border-radius: 0.375rem; 
+            background-color: #f8f9fa;"&gt;
+  &lt;div hx-get="{% templatetag openblock %} url 'examples:products_htmx' {% templatetag closeblock %}?page=1"
+       hx-trigger="load"
+       hx-swap="outerHTML"&gt;
+    &lt;div class="text-center"&gt;Loading...&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Partial Template (returned by server)</h6>
+              <pre><code class="language-markup">{% templatetag openblock %} for product in products {% templatetag closeblock %}
+  &lt;div class="product-card"&gt;
+    &lt;h5&gt;{% templatetag openvariable %} product.name {% templatetag closevariable %}&lt;/h5&gt;
+    &lt;p&gt;{% templatetag openvariable %} product.description {% templatetag closevariable %}&lt;/p&gt;
+    &lt;!-- Product details --&gt;
+  &lt;/div&gt;
+{% templatetag openblock %} endfor {% templatetag closeblock %}
+
+&lt;!-- Next page trigger (only if has_next) --&gt;
+{% templatetag openblock %} if page_obj.has_next {% templatetag closeblock %}
+  &lt;div hx-get="?page={% templatetag openvariable %} page_obj.next_page_number {% templatetag closevariable %}"
+       hx-trigger="revealed"
+       hx-swap="outerHTML"&gt;
+    Loading more...
+  &lt;/div&gt;
+{% templatetag openblock %} endif {% templatetag closeblock %}</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>JavaScript</h6>
+              <pre><code class="language-javascript">// No JavaScript needed!
+// HTMX handles everything:
+// - Initial load with hx-trigger="load"
+// - Scroll detection with hx-trigger="revealed"
+// - Automatic pagination (server controls page numbers)
+// - Element replacement with hx-swap="outerHTML"
+// - Stops when server doesn't return a trigger</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Django View (Python)</h6>
+              <pre><code class="language-python">def products_htmx(request):
+    page = int(request.GET.get("page", 1))
+    per_page = 10
+    
+    products = Product.objects.all()
+    paginator = Paginator(products, per_page)
+    page_obj = paginator.get_page(page)
+    
+    # Return HTML fragment
+    return render(
+        request,
+        "examples/partials/product_list.html",
+        {
+            "products": page_obj,
+            "page_obj": page_obj,
+        },
+    )</code></pre>
+            </div>
+
+            <div class="alert alert-success">
+              <strong>Total Lines:</strong> ~8 lines (HTML) + ~12 lines (template) + 0 lines (JS) = <strong>~20 lines</strong>
+              <br><strong>Reduction:</strong> 67% less code!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-info mt-3">
+    <strong>Key Differences:</strong>
+    <ul class="mb-0">
+      <li><strong>jQuery:</strong> Manual pagination state, scroll event detection, and append logic (~60 lines total)</li>
+      <li><strong>HTMX:</strong> Server controls pagination; next page trigger embedded in HTML response (~20 lines total)</li>
+      <li><strong>State Management:</strong> jQuery tracks page number in JavaScript; HTMX has no client-side state</li>
+      <li><strong>Server Response:</strong> jQuery returns JSON; HTMX returns HTML with next trigger</li>
+    </ul>
+  </div>
+
+  <div class="mt-4">
+    <nav aria-label="Pattern navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison_live_search' %}">Previous: Live Search</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison' %}">All Patterns</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison_modal_dialogs' %}">Next: Modal Dialogs</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+{% endblock %}
+
+{% block inline_javascript %}
+  <!-- Prism.js for syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+
+  <script>
+    // jQuery: Infinite Scroll
+    let jqueryCurrentPage = 0;
+    let jqueryHasMore = true;
+    
+    function loadJqueryProducts() {
+      if (!jqueryHasMore) return;
+      
+      $('#jquery-load-spinner').show();
+      jqueryCurrentPage++;
+      
+      $.ajax({
+        url: '{% url "examples:products_ajax" %}',
+        data: { page: jqueryCurrentPage },
+        success: function(response) {
+          $('#jquery-load-spinner').hide();
+          
+          let html = '';
+          response.products.forEach(function(product) {
+            html += '<div class="product-card">' +
+              '<h5>' + product.name + '</h5>' +
+              '<p>' + product.description + '</p>' +
+              '<div class="price">$' + product.price + '</div>' +
+              '<span class="badge bg-secondary">' + product.category + '</span> ' +
+              (product.in_stock ? '<span class="badge bg-success">In Stock</span>' : '<span class="badge bg-danger">Out of Stock</span>') +
+              '</div>';
+          });
+          $('#jquery-product-list').append(html);
+          
+          jqueryHasMore = response.has_next;
+          if (!jqueryHasMore) {
+            $('#jquery-load-more-container').html('<p class="text-muted">No more products</p>');
+          }
+        }
+      });
+    }
+    
+    $('#jquery-load-more').on('click', loadJqueryProducts);
+    loadJqueryProducts(); // Load first page
+  </script>
+{% endblock %}

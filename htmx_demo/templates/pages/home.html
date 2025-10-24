@@ -1,3 +1,34 @@
 {% extends "base.html" %}
 
-
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+      <h1 class="mb-4">Welcome to the HTMX Demo</h1>
+      <p class="lead">
+        This application demonstrates the differences between jQuery/AJAX and HTMX 
+        for common web application interaction patterns.
+      </p>
+      
+      <div class="card mt-4">
+        <div class="card-body">
+          <h3 class="card-title">Training Examples</h3>
+          <p class="card-text">
+            Explore interactive examples comparing jQuery/AJAX with HTMX across multiple patterns:
+          </p>
+          <ul>
+            <li>Form Submissions with Validation</li>
+            <li>Live Search and Filtering</li>
+            <li>Infinite Scroll / Lazy Loading</li>
+            <li>Modal Dialogs</li>
+            <li>Dynamic List Operations</li>
+            <li>Dependent Dropdowns</li>
+            <li>Polling / Auto-refresh</li>
+          </ul>
+          <a href="{% url 'examples:index' %}" class="btn btn-primary btn-lg">
+            View Examples
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

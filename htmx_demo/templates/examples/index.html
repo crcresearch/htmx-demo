@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}HTMX Examples - Home{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/examples.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <div class="examples-nav">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'examples:index' %}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:comparison' %}">Side-by-Side Comparison</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:htmx_deep_dive' %}">HTMX Deep Dive</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <h1 class="mb-4">jQuery/AJAX vs HTMX Training Examples</h1>
+      
+      <div class="alert alert-info">
+        <h5>About These Examples</h5>
+        <p>
+          This demo application showcases common web interaction patterns implemented in both
+          jQuery/AJAX (traditional approach) and HTMX (modern, declarative approach).
+        </p>
+        <p class="mb-0">
+          Each example is fully functional and can be interacted with to see how the different
+          approaches work in practice.
+        </p>
+      </div>
+
+      <h2 class="mt-5 mb-4">Patterns Demonstrated</h2>
+
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">1. Form Submissions</h5>
+              <p class="card-text">
+                Learn how to handle form submissions with inline validation and success messages.
+                See the difference between manual AJAX calls and HTMX's declarative attributes.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">2. Live Search/Filtering</h5>
+              <p class="card-text">
+                Implement real-time search functionality. Compare manual DOM manipulation
+                with HTMX's automatic content replacement.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">3. Infinite Scroll/Lazy Loading</h5>
+              <p class="card-text">
+                Create infinite scroll pagination. See how HTMX simplifies loading more content
+                as users scroll down the page.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">4. Modal Dialogs</h5>
+              <p class="card-text">
+                Open modal dialogs with server-rendered content. Compare manual Bootstrap modal
+                management with HTMX's streamlined approach.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">5. Dynamic List Operations</h5>
+              <p class="card-text">
+                Build a todo list with add/remove/toggle functionality. See how HTMX reduces
+                JavaScript complexity for common CRUD operations.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">6. Dependent Dropdowns</h5>
+              <p class="card-text">
+                Implement cascading select dropdowns (Country → State → City). Compare
+                manual event handling with HTMX's automatic approach.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">7. Polling/Auto-refresh</h5>
+              <p class="card-text">
+                Create a live status dashboard with automatic polling. See how HTMX eliminates
+                the need for setInterval and manual state management.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <h3>Getting Started</h3>
+        <p>Choose from two learning paths:</p>
+        
+        <div class="row mt-4">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Side-by-Side Comparison</h5>
+                <p class="card-text">
+                  View jQuery and HTMX implementations side-by-side to understand
+                  the differences in approach, code complexity, and patterns.
+                </p>
+                <a href="{% url 'examples:comparison' %}" class="btn btn-primary">
+                  View Comparison
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">HTMX Deep Dive</h5>
+                <p class="card-text">
+                  Focus exclusively on HTMX with detailed explanations, best practices,
+                  and advanced techniques for each pattern.
+                </p>
+                <a href="{% url 'examples:htmx_deep_dive' %}" class="btn btn-primary">
+                  Deep Dive
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 mb-4">
+        <h3>Documentation</h3>
+        <p>
+          For detailed guides and reference materials, check out the documentation files
+          in the <code>docs/</code> directory:
+        </p>
+        <ul>
+          <li><strong>HTMX_GUIDE.md</strong> - Comprehensive HTMX concepts and attributes</li>
+          <li><strong>COMPARISON_GUIDE.md</strong> - Detailed code comparisons and analysis</li>
+          <li><strong>GOTCHAS.md</strong> - Common pitfalls when transitioning from jQuery to HTMX</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

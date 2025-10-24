@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Form Submissions - jQuery vs HTMX{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/examples.css' %}" rel="stylesheet">
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <style>
+    /* Constrain comparison columns to 50% width */
+    .comparison-side {
+      min-width: 0;
+      overflow: hidden;
+    }
+    .code-tab {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .code-tab pre {
+      margin: 0;
+      border-radius: 0.375rem;
+      margin-bottom: 0;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab pre[class*="language-"] {
+      margin: 0;
+      border-radius: 0.375rem;
+      overflow-x: auto;
+      width: 100%;
+      background: #2d2d2d;
+    }
+    .code-tab code {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.875rem;
+      white-space: pre;
+      display: block;
+    }
+    .code-section {
+      margin-bottom: 1.5rem;
+    }
+    .code-section h6 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 0.25rem;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="examples-nav">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:index' %}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'examples:comparison' %}">Side-by-Side Comparison</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:htmx_deep_dive' %}">HTMX Deep Dive</a>
+      </li>
+    </ul>
+  </div>
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'examples:comparison' %}">Comparison</a></li>
+      <li class="breadcrumb-item active">Form Submissions</li>
+    </ol>
+  </nav>
+
+  <h1 class="mb-4">Pattern 1: Form Submissions with Validation</h1>
+  
+  <div class="alert alert-info">
+    <strong>Scenario:</strong> Submit a contact form with inline validation and success messages.
+    <br><strong>Try it:</strong> Submit empty to see errors, fill correctly to see success.
+    <br><strong>Compare:</strong> Switch to the "Code" tab to see implementation differences.
+  </div>
+
+  <div class="comparison-container">
+    <!-- jQuery Implementation -->
+    <div class="comparison-side">
+      <h4>
+        jQuery/AJAX
+        <span class="tech-badge jquery">jQuery</span>
+      </h4>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#jquery-interface" type="button">
+            Interface
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#jquery-code" type="button">
+            Code
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- jQuery Interface Tab -->
+        <div class="tab-pane fade show active" id="jquery-interface">
+          <form id="contact-form-jquery" class="mt-3">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="jquery-first-name">First Name</label>
+              <input type="text" class="form-control" id="jquery-first-name" name="first_name">
+              <div class="error-message" id="jquery-error-first_name"></div>
+            </div>
+            <div class="form-group">
+              <label for="jquery-last-name">Last Name</label>
+              <input type="text" class="form-control" id="jquery-last-name" name="last_name">
+              <div class="error-message" id="jquery-error-last_name"></div>
+            </div>
+            <div class="form-group">
+              <label for="jquery-email">Email</label>
+              <input type="email" class="form-control" id="jquery-email" name="email">
+              <div class="error-message" id="jquery-error-email"></div>
+            </div>
+            <div class="form-group">
+              <label for="jquery-message">Message</label>
+              <textarea class="form-control" id="jquery-message" name="message" rows="3"></textarea>
+              <div class="error-message" id="jquery-error-message"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+              Submit
+              <span class="spinner" id="jquery-spinner" style="display: none; margin-left: 0.5rem;"></span>
+            </button>
+          </form>
+          <div id="jquery-success-message"></div>
+        </div>
+
+        <!-- jQuery Code Tab -->
+        <div class="tab-pane fade" id="jquery-code">
+          <div class="code-tab">
+            <div class="code-section">
+              <h6>HTML Template</h6>
+              <pre><code class="language-markup">&lt;form id="contact-form-jquery"&gt;
+  {% templatetag openblock %} csrf_token {% templatetag closeblock %}
+  &lt;div class="form-group"&gt;
+    &lt;label for="jquery-first-name"&gt;First Name&lt;/label&gt;
+    &lt;input type="text" class="form-control" 
+           id="jquery-first-name" name="first_name"&gt;
+    &lt;div class="error-message" id="jquery-error-first_name"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;!-- Similar fields for last_name, email, message --&gt;
+  &lt;button type="submit" class="btn btn-primary"&gt;
+    Submit
+    &lt;span class="spinner" id="jquery-spinner"&gt;&lt;/span&gt;
+  &lt;/button&gt;
+&lt;/form&gt;
+&lt;div id="jquery-success-message"&gt;&lt;/div&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>JavaScript (jQuery)</h6>
+              <pre><code class="language-javascript">// Get CSRF token
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i &lt; cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+// Form submission handler
+$('#contact-form-jquery').on('submit', function(e) {
+  e.preventDefault();
+  
+  // Clear previous errors
+  $('.error-message').text('');
+  $('#jquery-success-message').html('');
+  $('#jquery-spinner').show();
+  
+  $.ajax({
+    url: '/examples/api/contact/submit/',
+    method: 'POST',
+    data: $(this).serialize(),
+    headers: {'X-CSRFToken': csrftoken},
+    success: function(response) {
+      $('#jquery-spinner').hide();
+      $('#jquery-success-message').html(
+        '&lt;div class="success-message"&gt;' + response.message + '&lt;/div&gt;'
+      );
+      $('#contact-form-jquery')[0].reset();
+    },
+    error: function(xhr) {
+      $('#jquery-spinner').hide();
+      if (xhr.responseJSON && xhr.responseJSON.errors) {
+        Object.keys(xhr.responseJSON.errors).forEach(function(field) {
+          $('#jquery-error-' + field).text(xhr.responseJSON.errors[field]);
+        });
+      }
+    }
+  });
+});</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Django View (Python)</h6>
+              <pre><code class="language-python">@require_http_methods(["POST"])
+def contact_submit_ajax(request):
+    # Get form data
+    first_name = request.POST.get("first_name", "").strip()
+    last_name = request.POST.get("last_name", "").strip()
+    email = request.POST.get("email", "").strip()
+    message = request.POST.get("message", "").strip()
+    
+    # Validate
+    errors = {}
+    if not first_name:
+        errors["first_name"] = "First name is required"
+    if not email:
+        errors["email"] = "Email is required"
+    # ... more validation
+    
+    if errors:
+        return JsonResponse({"success": False, "errors": errors}, 
+                          status=400)
+    
+    # Save contact
+    contact = Contact.objects.create(
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        message=message
+    )
+    
+    return JsonResponse({
+        "success": True,
+        "message": f"Thank you, {contact.first_name}!"
+    })</code></pre>
+            </div>
+
+            <div class="alert alert-warning">
+              <strong>Total Lines:</strong> ~35 lines (HTML) + ~35 lines (JS) = <strong>~70 lines</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HTMX Implementation -->
+    <div class="comparison-side">
+      <h4>
+        HTMX
+        <span class="tech-badge htmx">HTMX</span>
+      </h4>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#htmx-interface" type="button">
+            Interface
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#htmx-code" type="button">
+            Code
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- HTMX Interface Tab -->
+        <div class="tab-pane fade show active" id="htmx-interface">
+          <form id="contact-form-htmx" 
+                hx-post="{% url 'examples:contact_submit_htmx' %}" 
+                hx-target="#htmx-form-result"
+                hx-swap="innerHTML"
+                class="mt-3">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="htmx-first-name">First Name</label>
+              <input type="text" class="form-control" id="htmx-first-name" name="first_name">
+            </div>
+            <div class="form-group">
+              <label for="htmx-last-name">Last Name</label>
+              <input type="text" class="form-control" id="htmx-last-name" name="last_name">
+            </div>
+            <div class="form-group">
+              <label for="htmx-email">Email</label>
+              <input type="email" class="form-control" id="htmx-email" name="email">
+            </div>
+            <div class="form-group">
+              <label for="htmx-message">Message</label>
+              <textarea class="form-control" id="htmx-message" name="message" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+              Submit
+              <span class="htmx-indicator spinner" style="margin-left: 0.5rem;"></span>
+            </button>
+          </form>
+          <div id="htmx-form-result"></div>
+        </div>
+
+        <!-- HTMX Code Tab -->
+        <div class="tab-pane fade" id="htmx-code">
+          <div class="code-tab">
+            <div class="code-section">
+              <h6>HTML Template (with HTMX attributes)</h6>
+              <pre><code class="language-markup">&lt;form hx-post="{% templatetag openblock %} url 'examples:contact_submit_htmx' {% templatetag closeblock %}" 
+      hx-target="#htmx-form-result"
+      hx-swap="innerHTML"&gt;
+  {% templatetag openblock %} csrf_token {% templatetag closeblock %}
+  &lt;div class="form-group"&gt;
+    &lt;label&gt;First Name&lt;/label&gt;
+    &lt;input type="text" class="form-control" name="first_name"&gt;
+  &lt;/div&gt;
+  &lt;!-- Similar fields for last_name, email, message --&gt;
+  &lt;button type="submit" class="btn btn-primary"&gt;
+    Submit
+    &lt;span class="htmx-indicator"&gt;⏳&lt;/span&gt;
+  &lt;/button&gt;
+&lt;/form&gt;
+&lt;div id="htmx-form-result"&gt;&lt;/div&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>JavaScript</h6>
+              <pre><code class="language-javascript">// No JavaScript needed!
+// HTMX handles everything automatically:
+// - Form serialization
+// - AJAX request
+// - Response handling
+// - DOM updates
+// - Loading indicators</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Django View (Python)</h6>
+              <pre><code class="language-python">@require_http_methods(["POST"])
+def contact_submit_htmx(request):
+    # Get form data
+    first_name = request.POST.get("first_name", "").strip()
+    last_name = request.POST.get("last_name", "").strip()
+    email = request.POST.get("email", "").strip()
+    message = request.POST.get("message", "").strip()
+    
+    # Validate
+    errors = {}
+    if not first_name:
+        errors["first_name"] = "First name is required"
+    if not email:
+        errors["email"] = "Email is required"
+    # ... more validation
+    
+    if errors:
+        # Return HTML with errors
+        return render(request, 'partials/form_errors.html',
+                     {'errors': errors}, status=400)
+    
+    # Save contact
+    contact = Contact.objects.create(
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        message=message
+    )
+    
+    # Return HTML with success message
+    return render(request, 'partials/form_success.html',
+                 {'contact': contact})</code></pre>
+            </div>
+
+            <div class="alert alert-success">
+              <strong>Total Lines:</strong> ~30 lines (HTML) + 0 lines (JS) = <strong>~30 lines</strong>
+              <br><strong>Reduction:</strong> 57% less code!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-info mt-3">
+    <strong>Key Differences:</strong>
+    <ul class="mb-0">
+      <li><strong>jQuery:</strong> Requires manual event binding, AJAX configuration, error handling, and DOM manipulation (~70 lines total)</li>
+      <li><strong>HTMX:</strong> Uses declarative attributes on the form element; server returns HTML directly (~30 lines total)</li>
+      <li><strong>JavaScript:</strong> jQuery needs ~35 lines of JS; HTMX needs 0 lines</li>
+      <li><strong>Server Response:</strong> jQuery returns JSON; HTMX returns HTML</li>
+    </ul>
+  </div>
+
+  <div class="mt-4">
+    <nav aria-label="Pattern navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item disabled">
+          <span class="page-link">Previous</span>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison' %}">All Patterns</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison_live_search' %}">Next: Live Search</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+{% endblock %}
+
+{% block inline_javascript %}
+  <!-- Prism.js for syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+
+  <script>
+    // Get CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // jQuery: Form Submission
+    $('#contact-form-jquery').on('submit', function(e) {
+      e.preventDefault();
+      
+      // Clear previous errors
+      $('.error-message').text('');
+      $('#jquery-success-message').html('');
+      $('#jquery-spinner').show();
+      
+      $.ajax({
+        url: '{% url "examples:contact_submit_ajax" %}',
+        method: 'POST',
+        data: $(this).serialize(),
+        headers: {'X-CSRFToken': csrftoken},
+        success: function(response) {
+          $('#jquery-spinner').hide();
+          $('#jquery-success-message').html(
+            '<div class="success-message">' + response.message + '</div>'
+          );
+          $('#contact-form-jquery')[0].reset();
+        },
+        error: function(xhr) {
+          $('#jquery-spinner').hide();
+          if (xhr.responseJSON && xhr.responseJSON.errors) {
+            Object.keys(xhr.responseJSON.errors).forEach(function(field) {
+              $('#jquery-error-' + field).text(xhr.responseJSON.errors[field]);
+            });
+          }
+        }
+      });
+    });
+  </script>
+{% endblock %}

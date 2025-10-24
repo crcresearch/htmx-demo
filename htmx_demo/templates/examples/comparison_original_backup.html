@@ -1,0 +1,775 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}jQuery vs HTMX Comparison{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/examples.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <div class="examples-nav">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:index' %}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'examples:comparison' %}">Side-by-Side Comparison</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:htmx_deep_dive' %}">HTMX Deep Dive</a>
+      </li>
+    </ul>
+  </div>
+
+  <h1 class="mb-4">jQuery/AJAX vs HTMX: Side-by-Side Comparison</h1>
+  
+  <div class="alert alert-info">
+    <strong>Interactive Examples:</strong> Each example below is fully functional. Try them out to see
+    how both approaches work. Open your browser's developer console to observe network requests and responses.
+  </div>
+
+  <!-- Pattern 1: Form Submissions -->
+  <section class="comparison-section" id="form-submissions">
+    <h2>1. Form Submissions with Validation</h2>
+    <p>Submit a contact form with inline validation and success messages.</p>
+
+    <div class="comparison-container">
+      <!-- jQuery Implementation -->
+      <div class="comparison-side">
+        <h4>
+          jQuery/AJAX
+          <span class="tech-badge jquery">jQuery</span>
+        </h4>
+
+        <form id="contact-form-jquery" class="mt-3">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="jquery-first-name">First Name</label>
+            <input type="text" class="form-control" id="jquery-first-name" name="first_name">
+            <div class="error-message" id="jquery-error-first_name"></div>
+          </div>
+          <div class="form-group">
+            <label for="jquery-last-name">Last Name</label>
+            <input type="text" class="form-control" id="jquery-last-name" name="last_name">
+            <div class="error-message" id="jquery-error-last_name"></div>
+          </div>
+          <div class="form-group">
+            <label for="jquery-email">Email</label>
+            <input type="email" class="form-control" id="jquery-email" name="email">
+            <div class="error-message" id="jquery-error-email"></div>
+          </div>
+          <div class="form-group">
+            <label for="jquery-message">Message</label>
+            <textarea class="form-control" id="jquery-message" name="message" rows="3"></textarea>
+            <div class="error-message" id="jquery-error-message"></div>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            Submit
+            <span class="spinner" id="jquery-spinner" style="display: none; margin-left: 0.5rem;"></span>
+          </button>
+        </form>
+        <div id="jquery-success-message"></div>
+      </div>
+
+      <!-- HTMX Implementation -->
+      <div class="comparison-side">
+        <h4>
+          HTMX
+          <span class="tech-badge htmx">HTMX</span>
+        </h4>
+
+        <form id="contact-form-htmx" 
+              hx-post="{% url 'examples:contact_submit_htmx' %}" 
+              hx-target="#htmx-form-result"
+              hx-swap="innerHTML"
+              class="mt-3">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="htmx-first-name">First Name</label>
+            <input type="text" class="form-control" id="htmx-first-name" name="first_name">
+          </div>
+          <div class="form-group">
+            <label for="htmx-last-name">Last Name</label>
+            <input type="text" class="form-control" id="htmx-last-name" name="last_name">
+          </div>
+          <div class="form-group">
+            <label for="htmx-email">Email</label>
+            <input type="email" class="form-control" id="htmx-email" name="email">
+          </div>
+          <div class="form-group">
+            <label for="htmx-message">Message</label>
+            <textarea class="form-control" id="htmx-message" name="message" rows="3"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            Submit
+            <span class="htmx-indicator spinner" style="margin-left: 0.5rem;"></span>
+          </button>
+        </form>
+        <div id="htmx-form-result"></div>
+      </div>
+    </div>
+
+    <div class="callout callout-info mt-3">
+      <strong>Key Differences:</strong>
+      <ul class="mb-0">
+        <li><strong>jQuery:</strong> Requires manual event binding, AJAX configuration, error handling, and DOM manipulation</li>
+        <li><strong>HTMX:</strong> Uses declarative attributes on the form element; server returns HTML directly</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Pattern 2: Live Search/Filtering -->
+  <section class="comparison-section" id="live-search">
+    <h2>2. Live Search/Filtering</h2>
+    <p>Search contacts in real-time as you type.</p>
+
+    <div class="comparison-container">
+      <!-- jQuery Implementation -->
+      <div class="comparison-side">
+        <h4>
+          jQuery/AJAX
+          <span class="tech-badge jquery">jQuery</span>
+        </h4>
+
+        <div class="form-group">
+          <label for="jquery-search">Search Contacts</label>
+          <input type="text" 
+                 class="form-control" 
+                 id="jquery-search" 
+                 placeholder="Type to search...">
+          <span class="spinner" id="jquery-search-spinner" style="display: none; margin-top: 0.5rem;"></span>
+        </div>
+        <div id="jquery-search-results"></div>
+      </div>
+
+      <!-- HTMX Implementation -->
+      <div class="comparison-side">
+        <h4>
+          HTMX
+          <span class="tech-badge htmx">HTMX</span>
+        </h4>
+
+        <div class="form-group">
+          <label for="htmx-search">Search Contacts</label>
+          <input type="text" 
+                 class="form-control" 
+                 id="htmx-search"
+                 name="q"
+                 hx-get="{% url 'examples:contact_search_htmx' %}"
+                 hx-trigger="keyup changed delay:300ms"
+                 hx-target="#htmx-search-results"
+                 hx-indicator="#htmx-search-indicator"
+                 placeholder="Type to search...">
+          <span class="htmx-indicator spinner" id="htmx-search-indicator" style="margin-top: 0.5rem;"></span>
+        </div>
+        <div id="htmx-search-results"></div>
+      </div>
+    </div>
+
+    <div class="callout callout-info mt-3">
+      <strong>Key Differences:</strong>
+      <ul class="mb-0">
+        <li><strong>jQuery:</strong> Manual event handlers with debouncing logic, AJAX calls, and result rendering</li>
+        <li><strong>HTMX:</strong> Built-in debouncing with <code>delay:300ms</code>, automatic request handling</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Pattern 3: Infinite Scroll -->
+  <section class="comparison-section" id="infinite-scroll">
+    <h2>3. Infinite Scroll / Lazy Loading</h2>
+    <p>Load more products as you scroll down.</p>
+
+    <div class="comparison-container">
+      <!-- jQuery Implementation -->
+      <div class="comparison-side">
+        <h4>
+          jQuery/AJAX
+          <span class="tech-badge jquery">jQuery</span>
+        </h4>
+
+        <div id="jquery-product-list" style="max-height: 500px; overflow-y: auto;"></div>
+        <div id="jquery-load-more-container" class="text-center mt-3">
+          <button class="btn btn-secondary" id="jquery-load-more">
+            Load More
+            <span class="spinner" id="jquery-load-spinner" style="display: none; margin-left: 0.5rem;"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- HTMX Implementation -->
+      <div class="comparison-side">
+        <h4>
+          HTMX
+          <span class="tech-badge htmx">HTMX</span>
+        </h4>
+
+        <div id="htmx-product-list" style="max-height: 500px; overflow-y: auto;">
+          <div hx-get="{% url 'examples:products_htmx' %}?page=1"
+               hx-trigger="load"
+               hx-swap="outerHTML">
+            <div class="text-center p-3">
+              <span class="spinner"></span> Loading...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info mt-3">
+      <strong>Key Differences:</strong>
+      <ul class="mb-0">
+        <li><strong>jQuery:</strong> Manual pagination state, scroll event detection, and append logic</li>
+        <li><strong>HTMX:</strong> Server controls pagination; next page trigger embedded in HTML response</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Pattern 4: Modal Dialogs -->
+  <section class="comparison-section" id="modal-dialogs">
+    <h2>4. Modal Dialogs</h2>
+    <p>Open a modal with server-rendered content.</p>
+
+    <div class="comparison-container">
+      <!-- jQuery Implementation -->
+      <div class="comparison-side">
+        <h4>
+          jQuery/AJAX
+          <span class="tech-badge jquery">jQuery</span>
+        </h4>
+
+        <button class="btn btn-primary" id="jquery-open-modal">
+          Open Product Details
+        </button>
+
+        <!-- jQuery Modal -->
+        <div class="modal fade" id="jquery-product-modal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="jquery-modal-title">Loading...</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body" id="jquery-modal-body">
+                <div class="text-center">
+                  <span class="spinner"></span> Loading...
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HTMX Implementation -->
+      <div class="comparison-side">
+        <h4>
+          HTMX
+          <span class="tech-badge htmx">HTMX</span>
+        </h4>
+
+        <button class="btn btn-primary"
+                hx-get="{% url 'examples:product_detail_htmx' product_id=1 %}"
+                hx-target="#htmx-modal-container"
+                hx-swap="innerHTML">
+          Open Product Details
+        </button>
+
+        <div id="htmx-modal-container"></div>
+      </div>
+    </div>
+
+    <div class="callout callout-info mt-3">
+      <strong>Key Differences:</strong>
+      <ul class="mb-0">
+        <li><strong>jQuery:</strong> Manual Bootstrap modal initialization, AJAX data fetching, and content population</li>
+        <li><strong>HTMX:</strong> Server returns complete modal HTML; automatic insertion and Bootstrap integration</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Pattern 5: Dynamic List Operations -->
+  <section class="comparison-section" id="dynamic-lists">
+    <h2>5. Dynamic List Operations (Todo List)</h2>
+    <p>Add, remove, and toggle tasks dynamically.</p>
+
+    <div class="comparison-container">
+      <!-- jQuery Implementation -->
+      <div class="comparison-side">
+        <h4>
+          jQuery/AJAX
+          <span class="tech-badge jquery">jQuery</span>
+        </h4>
+
+        <form id="jquery-task-form" class="mb-3">
+          {% csrf_token %}
+          <div class="input-group">
+            <input type="text" class="form-control" id="jquery-task-input" placeholder="New task...">
+            <button type="submit" class="btn btn-primary">Add</button>
+          </div>
+        </form>
+        <div id="jquery-task-list"></div>
+      </div>
+
+      <!-- HTMX Implementation -->
+      <div class="comparison-side">
+        <h4>
+          HTMX
+          <span class="tech-badge htmx">HTMX</span>
+        </h4>
+
+        <form hx-post="{% url 'examples:task_create_htmx' %}"
+              hx-target="#htmx-task-list"
+              hx-swap="afterbegin"
+              hx-on::after-request="if(event.detail.successful) this.reset()"
+              class="mb-3">
+          {% csrf_token %}
+          <div class="input-group">
+            <input type="text" class="form-control" name="title" placeholder="New task..." required>
+            <button type="submit" class="btn btn-primary">Add</button>
+          </div>
+        </form>
+        <div id="htmx-task-list"></div>
+      </div>
+    </div>
+
+    <div class="callout callout-info mt-3">
+      <strong>Key Differences:</strong>
+      <ul class="mb-0">
+        <li><strong>jQuery:</strong> Manual CRUD operations, DOM element creation, and event delegation</li>
+        <li><strong>HTMX:</strong> Server returns HTML fragments; HTMX handles insertion and removal automatically</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Pattern 6: Dependent Dropdowns -->
+  <section class="comparison-section" id="dependent-dropdowns">
+    <h2>6. Dependent Dropdowns</h2>
+    <p>Country, State, and City cascading selects.</p>
+
+    <div class="comparison-container">
+      <!-- jQuery Implementation -->
+      <div class="comparison-side">
+        <h4>
+          jQuery/AJAX
+          <span class="tech-badge jquery">jQuery</span>
+        </h4>
+
+        <form>
+          <div class="form-group">
+            <label for="jquery-country">Country</label>
+            <select class="form-control" id="jquery-country">
+              <option value="">Select a country</option>
+              <option value="1">United States</option>
+              <option value="2">Canada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="jquery-state">State/Province</label>
+            <select class="form-control" id="jquery-state" disabled>
+              <option value="">Select a state</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="jquery-city">City</label>
+            <select class="form-control" id="jquery-city" disabled>
+              <option value="">Select a city</option>
+            </select>
+          </div>
+        </form>
+      </div>
+
+      <!-- HTMX Implementation -->
+      <div class="comparison-side">
+        <h4>
+          HTMX
+          <span class="tech-badge htmx">HTMX</span>
+        </h4>
+
+        <form>
+          <div class="form-group">
+            <label for="htmx-country">Country</label>
+            <select class="form-control" 
+                    id="htmx-country"
+                    name="country_id"
+                    hx-get="{% url 'examples:states_htmx' %}"
+                    hx-target="#htmx-state"
+                    hx-trigger="change">
+              <option value="">Select a country</option>
+              <option value="1">United States</option>
+              <option value="2">Canada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="htmx-state">State/Province</label>
+            <select class="form-control" id="htmx-state" name="state_id"
+                    hx-get="{% url 'examples:cities_htmx' %}"
+                    hx-target="#htmx-city"
+                    hx-trigger="change">
+              <option value="">Select a state</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="htmx-city">City</label>
+            <select class="form-control" id="htmx-city" name="city_id">
+              <option value="">Select a city</option>
+            </select>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="callout callout-info mt-3">
+      <strong>Key Differences:</strong>
+      <ul class="mb-0">
+        <li><strong>jQuery:</strong> Manual change event handlers, enable/disable logic, and option population</li>
+        <li><strong>HTMX:</strong> Declarative triggers; server returns option elements directly</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Pattern 7: Polling/Auto-refresh -->
+  <section class="comparison-section" id="polling">
+    <h2>7. Polling / Auto-refresh</h2>
+    <p>System status dashboard that updates automatically every 3 seconds.</p>
+
+    <div class="comparison-container">
+      <!-- jQuery Implementation -->
+      <div class="comparison-side">
+        <h4>
+          jQuery/AJAX
+          <span class="tech-badge jquery">jQuery</span>
+        </h4>
+
+        <button class="btn btn-success btn-sm mb-3" id="jquery-start-polling">Start Polling</button>
+        <button class="btn btn-danger btn-sm mb-3" id="jquery-stop-polling" style="display: none;">Stop Polling</button>
+        
+        <div id="jquery-status-dashboard"></div>
+      </div>
+
+      <!-- HTMX Implementation -->
+      <div class="comparison-side">
+        <h4>
+          HTMX
+          <span class="tech-badge htmx">HTMX</span>
+        </h4>
+
+        <div class="mb-3">
+          <span class="badge bg-success">Auto-updating every 3 seconds</span>
+        </div>
+
+        <div hx-get="{% url 'examples:system_status_htmx' %}"
+             hx-trigger="load, every 3s"
+             hx-swap="innerHTML">
+          <div class="text-center p-3">
+            <span class="spinner"></span> Loading...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info mt-3">
+      <strong>Key Differences:</strong>
+      <ul class="mb-0">
+        <li><strong>jQuery:</strong> Manual setInterval/clearInterval management, state tracking, and cleanup</li>
+        <li><strong>HTMX:</strong> Built-in polling with <code>every 3s</code> trigger; automatic cleanup on element removal</li>
+      </ul>
+    </div>
+  </section>
+{% endblock %}
+
+{% block inline_javascript %}
+  <script>
+    // Get CSRF token for jQuery AJAX requests
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // Pattern 1: Form Submission (jQuery)
+    $('#contact-form-jquery').on('submit', function(e) {
+      e.preventDefault();
+      
+      // Clear previous errors
+      $('.error-message').text('');
+      $('#jquery-success-message').html('');
+      $('#jquery-spinner').show();
+      
+      $.ajax({
+        url: '{% url "examples:contact_submit_ajax" %}',
+        method: 'POST',
+        data: $(this).serialize(),
+        headers: {'X-CSRFToken': csrftoken},
+        success: function(response) {
+          $('#jquery-spinner').hide();
+          $('#jquery-success-message').html(
+            '<div class="success-message">' + response.message + '</div>'
+          );
+          $('#contact-form-jquery')[0].reset();
+        },
+        error: function(xhr) {
+          $('#jquery-spinner').hide();
+          if (xhr.responseJSON && xhr.responseJSON.errors) {
+            Object.keys(xhr.responseJSON.errors).forEach(function(field) {
+              $('#jquery-error-' + field).text(xhr.responseJSON.errors[field]);
+            });
+          }
+        }
+      });
+    });
+
+    // Pattern 2: Live Search (jQuery)
+    let searchTimeout;
+    $('#jquery-search').on('keyup', function() {
+      clearTimeout(searchTimeout);
+      const query = $(this).val();
+      
+      $('#jquery-search-spinner').show();
+      
+      searchTimeout = setTimeout(function() {
+        $.ajax({
+          url: '{% url "examples:contact_search_ajax" %}',
+          data: { q: query },
+          success: function(response) {
+            $('#jquery-search-spinner').hide();
+            let html = '';
+            if (response.results.length === 0) {
+              html = '<p class="text-muted">No contacts found</p>';
+            } else {
+              response.results.forEach(function(contact) {
+                html += '<div class="contact-item">' +
+                  '<strong>' + contact.first_name + ' ' + contact.last_name + '</strong><br>' +
+                  contact.email + (contact.company ? ' - ' + contact.company : '') +
+                  '</div>';
+              });
+            }
+            $('#jquery-search-results').html(html);
+          }
+        });
+      }, 300);
+    });
+
+    // Pattern 3: Infinite Scroll (jQuery)
+    let jqueryCurrentPage = 0;
+    let jqueryHasMore = true;
+    
+    function loadJqueryProducts() {
+      if (!jqueryHasMore) return;
+      
+      $('#jquery-load-spinner').show();
+      jqueryCurrentPage++;
+      
+      $.ajax({
+        url: '{% url "examples:products_ajax" %}',
+        data: { page: jqueryCurrentPage },
+        success: function(response) {
+          $('#jquery-load-spinner').hide();
+          
+          let html = '';
+          response.products.forEach(function(product) {
+            html += '<div class="product-card">' +
+              '<h5>' + product.name + '</h5>' +
+              '<p>' + product.description + '</p>' +
+              '<div class="price">$' + product.price + '</div>' +
+              '<span class="badge bg-secondary">' + product.category + '</span> ' +
+              (product.in_stock ? '<span class="badge bg-success">In Stock</span>' : '<span class="badge bg-danger">Out of Stock</span>') +
+              '</div>';
+          });
+          $('#jquery-product-list').append(html);
+          
+          jqueryHasMore = response.has_next;
+          if (!jqueryHasMore) {
+            $('#jquery-load-more-container').html('<p class="text-muted">No more products</p>');
+          }
+        }
+      });
+    }
+    
+    $('#jquery-load-more').on('click', loadJqueryProducts);
+    loadJqueryProducts(); // Load first page
+
+    // Pattern 4: Modal Dialog (jQuery)
+    $('#jquery-open-modal').on('click', function() {
+      const modal = new bootstrap.Modal($('#jquery-product-modal')[0]);
+      modal.show();
+      
+      $('#jquery-modal-title').text('Loading...');
+      $('#jquery-modal-body').html('<div class="text-center"><span class="spinner"></span> Loading...</div>');
+      
+      $.ajax({
+        url: '{% url "examples:product_detail_ajax" product_id=1 %}',
+        success: function(product) {
+          $('#jquery-modal-title').text(product.name);
+          $('#jquery-modal-body').html(
+            '<p>' + product.description + '</p>' +
+            '<div class="price">$' + product.price + '</div>' +
+            '<p><span class="badge bg-secondary">' + product.category + '</span> ' +
+            (product.in_stock ? '<span class="badge bg-success">In Stock</span>' : '<span class="badge bg-danger">Out of Stock</span>') +
+            '</p>'
+          );
+        }
+      });
+    });
+
+    // Pattern 5: Dynamic List Operations (jQuery)
+    function loadJqueryTasks() {
+      // For demo, we'll just start with an empty list
+      // In a real app, you'd load existing tasks
+    }
+    
+    $('#jquery-task-form').on('submit', function(e) {
+      e.preventDefault();
+      const title = $('#jquery-task-input').val();
+      
+      if (!title) return;
+      
+      $.ajax({
+        url: '{% url "examples:task_create_ajax" %}',
+        method: 'POST',
+        data: { title: title },
+        headers: {'X-CSRFToken': csrftoken},
+        success: function(response) {
+          const task = response.task;
+          const html = '<div class="task-item" data-task-id="' + task.id + '">' +
+            '<input type="checkbox" class="form-check-input task-checkbox" ' + (task.completed ? 'checked' : '') + '>' +
+            '<div class="task-title">' + task.title + '</div>' +
+            '<button class="btn btn-sm btn-danger task-delete">Delete</button>' +
+            '</div>';
+          $('#jquery-task-list').prepend(html);
+          $('#jquery-task-input').val('');
+        }
+      });
+    });
+    
+    // Event delegation for dynamically added tasks
+    $('#jquery-task-list').on('click', '.task-delete', function() {
+      const taskItem = $(this).closest('.task-item');
+      const taskId = taskItem.data('task-id');
+      
+      $.ajax({
+        url: '/examples/api/tasks/' + taskId + '/delete/',
+        method: 'DELETE',
+        headers: {'X-CSRFToken': csrftoken},
+        success: function() {
+          taskItem.remove();
+        }
+      });
+    });
+    
+    $('#jquery-task-list').on('change', '.task-checkbox', function() {
+      const taskItem = $(this).closest('.task-item');
+      const taskId = taskItem.data('task-id');
+      
+      $.ajax({
+        url: '/examples/api/tasks/' + taskId + '/toggle/',
+        method: 'POST',
+        headers: {'X-CSRFToken': csrftoken},
+        success: function(response) {
+          if (response.task.completed) {
+            taskItem.addClass('completed');
+          } else {
+            taskItem.removeClass('completed');
+          }
+        }
+      });
+    });
+    
+    loadJqueryTasks();
+
+    // Pattern 6: Dependent Dropdowns (jQuery)
+    $('#jquery-country').on('change', function() {
+      const countryId = $(this).val();
+      $('#jquery-state').prop('disabled', true).html('<option value="">Loading...</option>');
+      $('#jquery-city').prop('disabled', true).html('<option value="">Select a city</option>');
+      
+      if (!countryId) {
+        $('#jquery-state').html('<option value="">Select a state</option>');
+        return;
+      }
+      
+      $.ajax({
+        url: '{% url "examples:states_ajax" %}',
+        data: { country_id: countryId },
+        success: function(response) {
+          let html = '<option value="">Select a state</option>';
+          response.states.forEach(function(state) {
+            html += '<option value="' + state.id + '">' + state.name + '</option>';
+          });
+          $('#jquery-state').html(html).prop('disabled', false);
+        }
+      });
+    });
+    
+    $('#jquery-state').on('change', function() {
+      const stateId = $(this).val();
+      $('#jquery-city').prop('disabled', true).html('<option value="">Loading...</option>');
+      
+      if (!stateId) {
+        $('#jquery-city').html('<option value="">Select a city</option>');
+        return;
+      }
+      
+      $.ajax({
+        url: '{% url "examples:cities_ajax" %}',
+        data: { state_id: stateId },
+        success: function(response) {
+          let html = '<option value="">Select a city</option>';
+          response.cities.forEach(function(city) {
+            html += '<option value="' + city.id + '">' + city.name + '</option>';
+          });
+          $('#jquery-city').html(html).prop('disabled', false);
+        }
+      });
+    });
+
+    // Pattern 7: Polling (jQuery)
+    let pollingInterval;
+    
+    function loadSystemStatus() {
+      $.ajax({
+        url: '{% url "examples:system_status_ajax" %}',
+        success: function(response) {
+          let html = '';
+          response.statuses.forEach(function(status) {
+            const statusClass = status.status.replace('_', '');
+            html += '<div class="status-card">' +
+              '<span class="status-indicator ' + statusClass + '"></span>' +
+              '<strong>' + status.service_name + '</strong><br>' +
+              '<small>' + status.response_time_ms + 'ms - ' + status.uptime_percentage + '% uptime</small>' +
+              '</div>';
+          });
+          $('#jquery-status-dashboard').html(html);
+        }
+      });
+    }
+    
+    $('#jquery-start-polling').on('click', function() {
+      $(this).hide();
+      $('#jquery-stop-polling').show();
+      loadSystemStatus();
+      pollingInterval = setInterval(loadSystemStatus, 3000);
+    });
+    
+    $('#jquery-stop-polling').on('click', function() {
+      $(this).hide();
+      $('#jquery-start-polling').show();
+      clearInterval(pollingInterval);
+    });
+  </script>
+{% endblock %}
+

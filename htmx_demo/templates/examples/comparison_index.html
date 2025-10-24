@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}jQuery vs HTMX Comparison{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/examples.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <div class="examples-nav">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:index' %}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'examples:comparison' %}">Side-by-Side Comparison</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:htmx_deep_dive' %}">HTMX Deep Dive</a>
+      </li>
+    </ul>
+  </div>
+
+  <h1 class="mb-4">jQuery/AJAX vs HTMX: Pattern-by-Pattern Comparison</h1>
+  
+  <div class="alert alert-info">
+    <strong>Choose a Pattern:</strong> Each page below demonstrates a specific interaction pattern with 
+    side-by-side jQuery and HTMX implementations. All examples are fully functional and interactive.
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">1. Form Submissions</h5>
+          <p class="card-text">
+            Contact form with inline validation and success messages. Compare manual AJAX handling 
+            with HTMX's declarative approach.
+          </p>
+          <div class="mb-2">
+            <span class="badge bg-secondary">jQuery: ~35 lines</span>
+            <span class="badge bg-primary">HTMX: ~15 lines</span>
+            <span class="badge bg-success">57% reduction</span>
+          </div>
+          <a href="{% url 'examples:comparison_form_submissions' %}" class="btn btn-primary">
+            View Comparison
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">2. Live Search/Filtering</h5>
+          <p class="card-text">
+            Real-time search with debouncing. See how HTMX eliminates manual timeout management 
+            and DOM manipulation.
+          </p>
+          <div class="mb-2">
+            <span class="badge bg-secondary">jQuery: ~40 lines</span>
+            <span class="badge bg-primary">HTMX: ~12 lines</span>
+            <span class="badge bg-success">70% reduction</span>
+          </div>
+          <a href="{% url 'examples:comparison_live_search' %}" class="btn btn-primary">
+            View Comparison
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">3. Infinite Scroll / Lazy Loading</h5>
+          <p class="card-text">
+            Paginated product list with automatic loading. Compare manual page tracking with 
+            server-controlled pagination.
+          </p>
+          <div class="mb-2">
+            <span class="badge bg-secondary">jQuery: ~60 lines</span>
+            <span class="badge bg-primary">HTMX: ~20 lines</span>
+            <span class="badge bg-success">67% reduction</span>
+          </div>
+          <a href="{% url 'examples:comparison_infinite_scroll' %}" class="btn btn-primary">
+            View Comparison
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">4. Modal Dialogs</h5>
+          <p class="card-text">
+            Dynamic modal content from the server. See how HTMX simplifies modal management 
+            and content loading.
+          </p>
+          <div class="mb-2">
+            <span class="badge bg-secondary">jQuery: ~30 lines</span>
+            <span class="badge bg-primary">HTMX: ~10 lines</span>
+            <span class="badge bg-success">67% reduction</span>
+          </div>
+          <a href="{% url 'examples:comparison_modal_dialogs' %}" class="btn btn-primary">
+            View Comparison
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">5. Dynamic List Operations</h5>
+          <p class="card-text">
+            Todo list with add, remove, and toggle operations. Compare manual CRUD handling 
+            with HTMX's automatic approach.
+          </p>
+          <div class="mb-2">
+            <span class="badge bg-secondary">jQuery: ~50 lines</span>
+            <span class="badge bg-primary">HTMX: ~18 lines</span>
+            <span class="badge bg-success">64% reduction</span>
+          </div>
+          <a href="{% url 'examples:comparison_dynamic_lists' %}" class="btn btn-primary">
+            View Comparison
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">6. Dependent Dropdowns</h5>
+          <p class="card-text">
+            Country → State → City cascading selects. See how HTMX eliminates manual cascade 
+            logic and option building.
+          </p>
+          <div class="mb-2">
+            <span class="badge bg-secondary">jQuery: ~55 lines</span>
+            <span class="badge bg-primary">HTMX: ~25 lines</span>
+            <span class="badge bg-success">55% reduction</span>
+          </div>
+          <a href="{% url 'examples:comparison_dependent_dropdowns' %}" class="btn btn-primary">
+            View Comparison
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">7. Polling / Auto-refresh</h5>
+          <p class="card-text">
+            Live status dashboard with automatic updates. Compare manual setInterval management 
+            with HTMX's built-in polling.
+          </p>
+          <div class="mb-2">
+            <span class="badge bg-secondary">jQuery: ~45 lines</span>
+            <span class="badge bg-primary">HTMX: ~8 lines</span>
+            <span class="badge bg-success">82% reduction</span>
+          </div>
+          <a href="{% url 'examples:comparison_polling' %}" class="btn btn-primary">
+            View Comparison
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5">
+    <h3>About These Comparisons</h3>
+    <div class="row">
+      <div class="col-md-6">
+        <h5>jQuery/AJAX Approach</h5>
+        <ul>
+          <li>Manual event handlers and AJAX calls</li>
+          <li>JSON responses from server</li>
+          <li>Client-side rendering and DOM manipulation</li>
+          <li>State management in JavaScript</li>
+          <li>More code to write and maintain</li>
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <h5>HTMX Approach</h5>
+        <ul>
+          <li>Declarative HTML attributes</li>
+          <li>HTML responses from server</li>
+          <li>Server-side rendering</li>
+          <li>State managed on server</li>
+          <li>66% less code on average</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <h3>Tips for Exploring</h3>
+    <ul>
+      <li><strong>Open DevTools:</strong> Watch the Network tab to see JSON vs HTML responses</li>
+      <li><strong>View Source:</strong> See the HTMX attributes in action</li>
+      <li><strong>Try Both:</strong> Interact with both implementations to verify identical behavior</li>
+      <li><strong>Read the Code:</strong> Check <code>views.py</code> to see server-side logic</li>
+    </ul>
+  </div>
+{% endblock %}
+

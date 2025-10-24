@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Polling/Auto-refresh - jQuery vs HTMX{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/examples.css' %}" rel="stylesheet">
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <style>
+    /* Constrain comparison columns to 50% width */
+    .comparison-side {
+      min-width: 0;
+      overflow: hidden;
+    }
+    .code-tab {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .code-tab pre {
+      margin: 0;
+      border-radius: 0.375rem;
+      margin-bottom: 0;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab pre[class*="language-"] {
+      margin: 0;
+      border-radius: 0.375rem;
+      background: #2d2d2d;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab code {
+      white-space: pre;
+      display: block;
+    }
+    .code-section {
+      margin-bottom: 1.5rem;
+    }
+    .code-section h6 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 0.25rem;
+    }
+    
+    /* Disable orange flicker on status card updates */
+    .status-card.htmx-added,
+    .status-card.htmx-swapping {
+      animation: none !important;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="examples-nav">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:index' %}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'examples:comparison' %}">Side-by-Side Comparison</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:htmx_deep_dive' %}">HTMX Deep Dive</a>
+      </li>
+    </ul>
+  </div>
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'examples:comparison' %}">Comparison</a></li>
+      <li class="breadcrumb-item active">Polling</li>
+    </ol>
+  </nav>
+
+  <h1 class="mb-4">Pattern 7: Polling / Auto-refresh</h1>
+  
+  <div class="alert alert-info">
+    <strong>Scenario:</strong> System status dashboard that updates automatically every 3 seconds.
+    <br><strong>Try it:</strong> Watch the status indicators update in real-time. Notice response times changing.
+    <br><strong>Compare:</strong> Switch to the "Code" tab to see implementation differences.
+  </div>
+
+  <div class="comparison-container">
+    <!-- jQuery Implementation -->
+    <div class="comparison-side">
+      <h4>
+        jQuery/AJAX
+        <span class="tech-badge jquery">jQuery</span>
+      </h4>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#jquery-interface" type="button">
+            Interface
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#jquery-code" type="button">
+            Code
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- jQuery Interface Tab -->
+        <div class="tab-pane fade show active" id="jquery-interface">
+          <div class="mt-3">
+            <button class="btn btn-success btn-sm mb-3" id="jquery-start-polling">Start Polling</button>
+            <button class="btn btn-danger btn-sm mb-3" id="jquery-stop-polling" style="display: none;">Stop Polling</button>
+            
+            <div id="jquery-status-dashboard"></div>
+          </div>
+        </div>
+
+        <!-- jQuery Code Tab -->
+        <div class="tab-pane fade" id="jquery-code">
+          <div class="code-tab">
+            <div class="code-section">
+              <h6>HTML Template</h6>
+              <pre><code class="language-markup">&lt;button class="btn btn-success" id="jquery-start-polling"&gt;
+  Start Polling
+&lt;/button&gt;
+&lt;button class="btn btn-danger" id="jquery-stop-polling" style="display: none;"&gt;
+  Stop Polling
+&lt;/button&gt;
+
+&lt;div id="jquery-status-dashboard"&gt;&lt;/div&gt;
+
+&lt;!-- Content will be populated via AJAX --&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>JavaScript (jQuery)</h6>
+              <pre><code class="language-javascript">// Track polling interval ID
+let pollingInterval;
+
+// Function to fetch and update status
+function loadSystemStatus() {
+  $.ajax({
+    url: '/examples/api/system-status/',
+    success: function(response) {
+      // Build HTML from JSON
+      let html = '';
+      response.statuses.forEach(function(status) {
+        const statusClass = status.status.replace('_', '');
+        html += '&lt;div class="status-card"&gt;' +
+          '&lt;span class="status-indicator ' + statusClass + '"&gt;&lt;/span&gt;' +
+          '&lt;strong&gt;' + status.service_name + '&lt;/strong&gt;&lt;br&gt;' +
+          '&lt;small&gt;' + status.response_time_ms + 'ms - ' + 
+          status.uptime_percentage + '% uptime&lt;/small&gt;' +
+          '&lt;/div&gt;';
+      });
+      
+      // Update dashboard
+      $('#jquery-status-dashboard').html(html);
+    }
+  });
+}
+
+// Start polling
+$('#jquery-start-polling').on('click', function() {
+  $(this).hide();
+  $('#jquery-stop-polling').show();
+  
+  // Load immediately
+  loadSystemStatus();
+  
+  // Set up polling interval
+  pollingInterval = setInterval(loadSystemStatus, 3000);
+});
+
+// Stop polling
+$('#jquery-stop-polling').on('click', function() {
+  $(this).hide();
+  $('#jquery-start-polling').show();
+  
+  // Clear interval
+  clearInterval(pollingInterval);
+});
+
+// IMPORTANT: Clean up on page unload
+$(window).on('beforeunload', function() {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+  }
+});
+
+// Key challenges:
+// 1. Manual interval management (setInterval/clearInterval)
+// 2. Tracking interval ID in global state
+// 3. Start/stop UI control logic
+// 4. Building HTML from JSON on each update
+// 5. Memory leak prevention (cleanup)</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Django View (Python)</h6>
+              <pre><code class="language-python">@require_http_methods(["GET"])
+def system_status_ajax(request):
+    """AJAX endpoint - returns JSON status data."""
+    statuses = SystemStatus.objects.all()
+    
+    data = {
+        "statuses": [
+            {
+                "service_name": s.service_name,
+                "status": s.status,
+                "response_time_ms": s.response_time_ms,
+                "uptime_percentage": float(s.uptime_percentage),
+                "last_check": s.last_check.isoformat(),
+            }
+            for s in statuses
+        ]
+    }
+    
+    return JsonResponse(data)</code></pre>
+            </div>
+
+            <div class="alert alert-warning">
+              <strong>Total Lines:</strong> ~12 lines (HTML) + ~50 lines (JS) = <strong>~62 lines</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HTMX Implementation -->
+    <div class="comparison-side">
+      <h4>
+        HTMX
+        <span class="tech-badge htmx">HTMX</span>
+      </h4>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#htmx-interface" type="button">
+            Interface
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#htmx-code" type="button">
+            Code
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- HTMX Interface Tab -->
+        <div class="tab-pane fade show active" id="htmx-interface">
+          <div class="mt-3">
+            <div class="mb-3">
+              <span class="badge bg-success">Auto-updating every 3 seconds</span>
+            </div>
+
+            <!-- Polling trigger (hidden) -->
+            <div hx-get="{% url 'examples:system_status_htmx' %}"
+                 hx-trigger="load, every 3s"
+                 hx-swap="none">
+            </div>
+            
+            <!-- Status cards that update via out-of-band swaps -->
+            <div id="status-1" class="status-card">
+              <div class="text-center p-3"><span class="spinner"></span> Loading...</div>
+            </div>
+            <div id="status-2" class="status-card">
+              <div class="text-center p-3"><span class="spinner"></span> Loading...</div>
+            </div>
+            <div id="status-3" class="status-card">
+              <div class="text-center p-3"><span class="spinner"></span> Loading...</div>
+            </div>
+            <div id="status-4" class="status-card">
+              <div class="text-center p-3"><span class="spinner"></span> Loading...</div>
+            </div>
+            <div id="status-5" class="status-card">
+              <div class="text-center p-3"><span class="spinner"></span> Loading...</div>
+            </div>
+            <div id="status-6" class="status-card">
+              <div class="text-center p-3"><span class="spinner"></span> Loading...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HTMX Code Tab -->
+        <div class="tab-pane fade" id="htmx-code">
+          <div class="code-tab">
+            <div class="code-section">
+              <h6>HTML Template (with HTMX attributes)</h6>
+              <pre><code class="language-markup">&lt;!-- Polling trigger with no swap (uses out-of-band) --&gt;
+&lt;div hx-get="{% templatetag openblock %} url 'examples:system_status_htmx' {% templatetag closeblock %}"
+     hx-trigger="load, every 3s"
+     hx-swap="none"&gt;
+&lt;/div&gt;
+
+&lt;!-- Status cards with IDs that will be updated out-of-band --&gt;
+&lt;div id="status-1" class="status-card"&gt;Loading...&lt;/div&gt;
+&lt;div id="status-2" class="status-card"&gt;Loading...&lt;/div&gt;
+&lt;div id="status-3" class="status-card"&gt;Loading...&lt;/div&gt;
+&lt;!-- ... more status cards ... --&gt;
+
+&lt;!-- How it works: --&gt;
+&lt;!-- 'hx-swap="none"' = don't swap the trigger element --&gt;
+&lt;!-- Server returns status cards with hx-swap-oob="true" --&gt;
+&lt;!-- Each card updates in place by ID, no flash! --&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Server Response (Partial Template with OOB)</h6>
+              <pre><code class="language-markup">&lt;!-- system_status.html --&gt;
+{% templatetag openblock %} for status in statuses {% templatetag closeblock %}
+  &lt;div id="status-{% templatetag openvariable %} status.id {% templatetag closevariable %}" 
+       class="status-card" 
+       hx-swap-oob="true"&gt;
+    &lt;span class="status-indicator {% templatetag openvariable %} status.status {% templatetag closevariable %}"&gt;&lt;/span&gt;
+    &lt;strong&gt;{% templatetag openvariable %} status.service_name {% templatetag closevariable %}&lt;/strong&gt;&lt;br&gt;
+    &lt;small&gt;
+      {% templatetag openvariable %} status.response_time_ms {% templatetag closevariable %}ms - 
+      {% templatetag openvariable %} status.uptime_percentage {% templatetag closevariable %}% uptime
+    &lt;/small&gt;
+  &lt;/div&gt;
+{% templatetag openblock %} endfor {% templatetag closeblock %}
+
+&lt;!-- Out-of-band swaps: --&gt;
+&lt;!-- - Each element has a unique ID matching the page --&gt;
+&lt;!-- - hx-swap-oob="true" tells HTMX to swap by ID --&gt;
+&lt;!-- - Updates happen individually, no container flash! --&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Django View (Python)</h6>
+              <pre><code class="language-python">@require_http_methods(["GET"])
+def system_status_htmx(request):
+    """HTMX endpoint - returns HTML fragment."""
+    statuses = SystemStatus.objects.all()
+    
+    # Return HTML fragment
+    return render(
+        request,
+        "examples/partials/system_status.html",
+        {"statuses": statuses}
+    )
+
+# Key differences:
+# - Returns HTML, not JSON
+# - No polling logic needed in view
+# - Server doesn't track polling state
+# - Template handles all formatting</code></pre>
+            </div>
+
+            <div class="alert alert-success">
+              <strong>Total Lines:</strong> ~12 lines (HTML) + 0 lines (JS) = <strong>~12 lines</strong>
+              <br><strong>Code Reduction:</strong> 81% less code!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-info mt-3">
+    <strong>Key Differences:</strong>
+    <ul class="mb-0">
+      <li><strong>jQuery:</strong> Manual setInterval/clearInterval management, state tracking, and cleanup (~62 lines)</li>
+      <li><strong>HTMX:</strong> Built-in polling with <code>every 3s</code> trigger; automatic cleanup on element removal (~12 lines)</li>
+      <li><strong>Polling Control:</strong> jQuery requires start/stop buttons; HTMX polls automatically</li>
+      <li><strong>Memory Management:</strong> jQuery needs manual cleanup; HTMX handles it automatically</li>
+      <li><strong>No Flash Updates:</strong> HTMX uses out-of-band swaps (<code>hx-swap-oob</code>) to update individual cards without replacing the container</li>
+    </ul>
+  </div>
+
+  <div class="mt-4">
+    <nav aria-label="Pattern navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison_dependent_dropdowns' %}">Previous: Dependent Dropdowns</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison' %}">All Patterns</a>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link">Next</span>
+        </li>
+      </ul>
+    </nav>
+  </div>
+{% endblock %}
+
+{% block inline_javascript %}
+  <!-- Prism.js for syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+
+  <script>
+    // jQuery: Polling
+    let pollingInterval;
+    
+    function loadSystemStatus() {
+      $.ajax({
+        url: '{% url "examples:system_status_ajax" %}',
+        success: function(response) {
+          let html = '';
+          response.statuses.forEach(function(status) {
+            const statusClass = status.status.replace('_', '');
+            html += '<div class="status-card">' +
+              '<span class="status-indicator ' + statusClass + '"></span>' +
+              '<strong>' + status.service_name + '</strong><br>' +
+              '<small>' + status.response_time_ms + 'ms - ' + status.uptime_percentage + '% uptime</small>' +
+              '</div>';
+          });
+          $('#jquery-status-dashboard').html(html);
+        }
+      });
+    }
+    
+    $('#jquery-start-polling').on('click', function() {
+      $(this).hide();
+      $('#jquery-stop-polling').show();
+      loadSystemStatus();
+      pollingInterval = setInterval(loadSystemStatus, 3000);
+    });
+    
+    $('#jquery-stop-polling').on('click', function() {
+      $(this).hide();
+      $('#jquery-start-polling').show();
+      clearInterval(pollingInterval);
+    });
+  </script>
+{% endblock %}

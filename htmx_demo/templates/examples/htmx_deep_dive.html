@@ -1,0 +1,1161 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}HTMX Deep Dive{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/examples.css' %}" rel="stylesheet">
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <style>
+    .code-tab {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .code-tab pre {
+      margin: 0;
+      border-radius: 0.375rem;
+      margin-bottom: 0;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab pre[class*="language-"] {
+      margin: 0;
+      border-radius: 0.375rem;
+      background: #2d2d2d;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab code {
+      white-space: pre;
+      display: block;
+    }
+    .code-section {
+      margin-bottom: 1.5rem;
+    }
+    .code-section h6 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 0.25rem;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="examples-nav">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:index' %}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:comparison' %}">Side-by-Side Comparison</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'examples:htmx_deep_dive' %}">HTMX Deep Dive</a>
+      </li>
+    </ul>
+  </div>
+
+  <h1 class="mb-4">HTMX Deep Dive: Advanced Patterns & Best Practices</h1>
+  
+  <div class="alert alert-success">
+    <h5>About This Page</h5>
+    <p class="mb-0">
+      This page focuses exclusively on HTMX implementations with detailed explanations,
+      best practices, and advanced techniques. All examples are fully interactive.
+    </p>
+  </div>
+
+  <!-- Pattern 1: Form Submissions -->
+  <section class="pattern-section" id="htmx-form-submissions">
+    <h3>1. Form Submissions with Validation</h3>
+    
+    <div class="pattern-description">
+      <strong>HTMX Approach:</strong> Forms can handle submissions declaratively using <code>hx-post</code>.
+      The server returns HTML directly (success message or validation errors), which HTMX automatically
+      inserts into the target element. No JavaScript required!
+    </div>
+
+    <h5>Key HTMX Attributes:</h5>
+    <ul>
+      <li><code>hx-post</code>: Specifies the URL to POST to when the form is submitted</li>
+      <li><code>hx-target</code>: Where to insert the response (CSS selector)</li>
+      <li><code>hx-swap</code>: How to insert the response (innerHTML, outerHTML, beforeend, etc.)</li>
+      <li><code>hx-indicator</code>: Element to show during the request (loading spinner)</li>
+    </ul>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mt-3" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#form1-interface" type="button" role="tab">
+          Interface
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#form1-code" type="button" role="tab">
+          Code
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Interface Tab -->
+      <div class="tab-pane fade show active" id="form1-interface" role="tabpanel">
+        <div class="row mt-3">
+          <div class="col-md-8">
+            <form hx-post="{% url 'examples:contact_submit_htmx' %}" 
+                  hx-target="#form-result-1"
+                  hx-swap="innerHTML"
+                  hx-indicator="#form-spinner-1">
+              {% csrf_token %}
+              <div class="form-group">
+                <label>First Name *</label>
+                <input type="text" class="form-control" name="first_name">
+              </div>
+              <div class="form-group">
+                <label>Last Name *</label>
+                <input type="text" class="form-control" name="last_name">
+              </div>
+              <div class="form-group">
+                <label>Email *</label>
+                <input type="email" class="form-control" name="email">
+              </div>
+              <div class="form-group">
+                <label>Message *</label>
+                <textarea class="form-control" name="message" rows="3"></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                Submit
+                <span id="form-spinner-1" class="htmx-indicator spinner" style="margin-left: 0.5rem;"></span>
+              </button>
+            </form>
+            <div id="form-result-1"></div>
+          </div>
+          <div class="col-md-4">
+            <div class="callout callout-info">
+              <strong>Try It:</strong>
+              <ul class="mb-0">
+                <li>Submit empty to see validation errors</li>
+                <li>Fill correctly to see success message</li>
+                <li>Notice the loading indicator</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Tab -->
+      <div class="tab-pane fade" id="form1-code" role="tabpanel">
+        <div class="code-tab">
+          <div class="code-section">
+            <h6>HTML Template</h6>
+            <pre><code class="language-markup">&lt;form hx-post="{% templatetag openblock %} url 'examples:contact_submit_htmx' {% templatetag closeblock %}" 
+      hx-target="#form-result"
+      hx-swap="innerHTML"
+      hx-indicator="#form-spinner"&gt;
+  {% templatetag openblock %} csrf_token {% templatetag closeblock %}
+  &lt;div class="form-group"&gt;
+    &lt;label&gt;First Name *&lt;/label&gt;
+    &lt;input type="text" class="form-control" name="first_name"&gt;
+  &lt;/div&gt;
+  &lt;!-- ... more fields ... --&gt;
+  &lt;button type="submit" class="btn btn-primary"&gt;
+    Submit
+    &lt;span id="form-spinner" class="htmx-indicator spinner"&gt;&lt;/span&gt;
+  &lt;/button&gt;
+&lt;/form&gt;
+&lt;div id="form-result"&gt;&lt;/div&gt;</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Django View (views.py)</h6>
+            <pre><code class="language-python">def contact_submit_htmx(request):
+    """HTMX endpoint for contact form submission."""
+    if request.method == 'POST':
+        errors = {}
+        if not request.POST.get('first_name'):
+            errors['first_name'] = 'First name is required'
+        if not request.POST.get('last_name'):
+            errors['last_name'] = 'Last name is required'
+        if not request.POST.get('email'):
+            errors['email'] = 'Email is required'
+        if not request.POST.get('message'):
+            errors['message'] = 'Message is required'
+
+        if errors:
+            return render(
+                request,
+                "examples/partials/form_errors.html",
+                {"errors": errors},
+                status=400
+            )
+
+        # Save contact
+        Contact.objects.create(
+            first_name=request.POST['first_name'],
+            last_name=request.POST['last_name'],
+            email=request.POST['email'],
+            message=request.POST['message']
+        )
+
+        return render(
+            request,
+            "examples/partials/form_success.html",
+            {"message": "Contact submitted successfully!"}
+        )</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Success Partial (form_success.html)</h6>
+            <pre><code class="language-markup">&lt;div class="alert alert-success"&gt;
+  {% templatetag openvariable %} message {% templatetag closevariable %}
+&lt;/div&gt;</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Error Partial (form_errors.html)</h6>
+            <pre><code class="language-markup">&lt;div class="alert alert-danger"&gt;
+  &lt;ul class="mb-0"&gt;
+    {% templatetag openblock %} for field, error in errors.items {% templatetag closeblock %}
+      &lt;li&gt;&lt;strong&gt;{% templatetag openvariable %} field {% templatetag closevariable %}&lt;/strong&gt;: {% templatetag openvariable %} error {% templatetag closevariable %}&lt;/li&gt;
+    {% templatetag openblock %} endfor {% templatetag closeblock %}
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h5 class="mt-4">Best Practices:</h5>
+    <ul>
+      <li>Always return appropriate HTTP status codes (400 for validation errors, 200 for success)</li>
+      <li>Return HTML fragments, not JSON - let the server control presentation</li>
+      <li>Use CSS classes for styling different states (success, error)</li>
+      <li>Reset forms on success with <code>hx-on::after-request</code> event</li>
+    </ul>
+  </section>
+
+  <!-- Pattern 2: Live Search -->
+  <section class="pattern-section" id="htmx-live-search">
+    <h3>2. Live Search / Filtering</h3>
+    
+    <div class="pattern-description">
+      <strong>HTMX Approach:</strong> Input fields can trigger requests on keyup with built-in debouncing.
+      The <code>delay</code> modifier prevents excessive server requests while typing.
+    </div>
+
+    <h5>Key HTMX Attributes:</h5>
+    <ul>
+      <li><code>hx-get</code>: URL to fetch when triggered</li>
+      <li><code>hx-trigger</code>: What triggers the request (keyup, change, click, etc.)</li>
+      <li><code>delay:Xms</code>: Built-in debouncing - waits X milliseconds after last keyup</li>
+      <li><code>changed</code>: Only trigger if the value actually changed</li>
+    </ul>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mt-3" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#search1-interface" type="button" role="tab">
+          Interface
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#search1-code" type="button" role="tab">
+          Code
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Interface Tab -->
+      <div class="tab-pane fade show active" id="search1-interface" role="tabpanel">
+        <div class="row mt-3">
+          <div class="col-md-8">
+            <div class="form-group">
+              <label>Search Contacts</label>
+              <input type="text" 
+                     class="form-control" 
+                     name="q"
+                     hx-get="{% url 'examples:contact_search_htmx' %}"
+                     hx-trigger="keyup changed delay:300ms"
+                     hx-target="#search-results-1"
+                     hx-indicator="#search-spinner-1"
+                     placeholder="Type to search...">
+              <span id="search-spinner-1" class="htmx-indicator spinner" style="margin-top: 0.5rem;"></span>
+            </div>
+            <div id="search-results-1"></div>
+          </div>
+          <div class="col-md-4">
+            <div class="callout callout-info">
+              <strong>Notice:</strong>
+              <ul class="mb-0">
+                <li>Requests only fire after you stop typing (300ms delay)</li>
+                <li>No manual debouncing code needed</li>
+                <li>Watch the network tab to see requests</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Tab -->
+      <div class="tab-pane fade" id="search1-code" role="tabpanel">
+        <div class="code-tab">
+          <div class="code-section">
+            <h6>HTML Template</h6>
+            <pre><code class="language-markup">&lt;input type="text" 
+       class="form-control" 
+       name="q"
+       hx-get="{% templatetag openblock %} url 'examples:contact_search_htmx' {% templatetag closeblock %}"
+       hx-trigger="keyup changed delay:300ms"
+       hx-target="#search-results"
+       hx-indicator="#search-spinner"
+       placeholder="Type to search..."&gt;
+&lt;span id="search-spinner" class="htmx-indicator spinner"&gt;&lt;/span&gt;
+&lt;div id="search-results"&gt;&lt;/div&gt;</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Django View (views.py)</h6>
+            <pre><code class="language-python">def contact_search_htmx(request):
+    """HTMX endpoint for searching contacts."""
+    query = request.GET.get('q', '')
+    
+    if query:
+        contacts = Contact.objects.filter(
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(email__icontains=query)
+        )[:10]
+    else:
+        contacts = []
+    
+    return render(
+        request,
+        "examples/partials/contact_results.html",
+        {"contacts": contacts, "query": query}
+    )</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Results Partial (contact_results.html)</h6>
+            <pre><code class="language-markup">{% templatetag openblock %} if contacts {% templatetag closeblock %}
+  &lt;div class="list-group mt-3"&gt;
+    {% templatetag openblock %} for contact in contacts {% templatetag closeblock %}
+      &lt;div class="list-group-item"&gt;
+        &lt;strong&gt;{% templatetag openvariable %} contact.first_name {% templatetag closevariable %} {% templatetag openvariable %} contact.last_name {% templatetag closevariable %}&lt;/strong&gt;&lt;br&gt;
+        {% templatetag openvariable %} contact.email {% templatetag closevariable %}
+      &lt;/div&gt;
+    {% templatetag openblock %} endfor {% templatetag closeblock %}
+  &lt;/div&gt;
+{% templatetag openblock %} elif query {% templatetag closeblock %}
+  &lt;p class="text-muted mt-3"&gt;No results found for "{% templatetag openvariable %} query {% templatetag closevariable %}"&lt;/p&gt;
+{% templatetag openblock %} endif {% templatetag closeblock %}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h5 class="mt-4">Best Practices:</h5>
+    <ul>
+      <li>Use <code>delay:300ms</code> or higher to prevent excessive requests</li>
+      <li>Add <code>changed</code> modifier to avoid duplicate requests</li>
+      <li>Show loading indicators for better UX</li>
+      <li>Return "No results" message from server when appropriate</li>
+    </ul>
+  </section>
+
+  <!-- Pattern 3: Infinite Scroll -->
+  <section class="pattern-section" id="htmx-infinite-scroll">
+    <h3>3. Infinite Scroll / Lazy Loading</h3>
+    
+    <div class="pattern-description">
+      <strong>HTMX Approach:</strong> The server includes the "load more" trigger in the response HTML.
+      When the user scrolls to that trigger, HTMX automatically fetches the next page and appends it.
+      This pattern requires zero JavaScript!
+    </div>
+
+    <h5>Key Concepts:</h5>
+    <ul>
+      <li><code>hx-trigger="revealed"</code>: Fires when element scrolls into view</li>
+      <li><code>hx-swap="afterend"</code>: Appends new content after the trigger element</li>
+      <li>Server controls pagination state - no client-side page tracking needed</li>
+      <li>Last page simply doesn't include a trigger element - pagination stops automatically</li>
+    </ul>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mt-3" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#scroll1-interface" type="button" role="tab">
+          Interface
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#scroll1-code" type="button" role="tab">
+          Code
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Interface Tab -->
+      <div class="tab-pane fade show active" id="scroll1-interface" role="tabpanel">
+        <div class="row mt-3">
+          <div class="col-md-8">
+            <div style="max-height: 500px; overflow-y: auto; border: 1px solid #dee2e6; padding: 1rem; border-radius: 0.375rem;">
+              <div hx-get="{% url 'examples:products_htmx' %}?page=1"
+                   hx-trigger="load"
+                   hx-swap="outerHTML">
+                <div class="text-center p-3">
+                  <span class="spinner"></span> Loading products...
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="callout callout-info">
+              <strong>How It Works:</strong>
+              <ul class="mb-0">
+                <li>Scroll down to trigger loading</li>
+                <li>Each response includes a trigger for the next page</li>
+                <li>No manual page tracking</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Tab -->
+      <div class="tab-pane fade" id="scroll1-code" role="tabpanel">
+        <div class="code-tab">
+          <div class="code-section">
+            <h6>HTML Template (Initial Loader)</h6>
+            <pre><code class="language-markup">&lt;div hx-get="{% templatetag openblock %} url 'examples:products_htmx' {% templatetag closeblock %}?page=1"
+     hx-trigger="load"
+     hx-swap="outerHTML"&gt;
+  &lt;div class="text-center"&gt;Loading...&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Django View (views.py)</h6>
+            <pre><code class="language-python">def products_htmx(request):
+    """HTMX endpoint for infinite scroll products."""
+    page = int(request.GET.get('page', 1))
+    page_size = 10
+    
+    products = Product.objects.all()[
+        (page - 1) * page_size : page * page_size
+    ]
+    
+    has_more = Product.objects.count() > page * page_size
+    
+    return render(
+        request,
+        "examples/partials/product_list.html",
+        {
+            "products": products,
+            "page": page,
+            "has_more": has_more
+        }
+    )</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Results Partial (product_list.html)</h6>
+            <pre><code class="language-markup">{% templatetag openblock %} for product in products {% templatetag closeblock %}
+  &lt;div class="product-item mb-3 p-3 border rounded"&gt;
+    &lt;h5&gt;{% templatetag openvariable %} product.name {% templatetag closevariable %}&lt;/h5&gt;
+    &lt;p&gt;{% templatetag openvariable %} product.description {% templatetag closevariable %}&lt;/p&gt;
+    &lt;strong&gt;${% templatetag openvariable %} product.price {% templatetag closevariable %}&lt;/strong&gt;
+  &lt;/div&gt;
+{% templatetag openblock %} endfor {% templatetag closeblock %}
+
+{% templatetag openblock %} if has_more {% templatetag closeblock %}
+  &lt;!-- Trigger for next page --&gt;
+  &lt;div hx-get="{% templatetag openblock %} url 'examples:products_htmx' {% templatetag closeblock %}?page={% templatetag openvariable %} page|add:1 {% templatetag closevariable %}"
+       hx-trigger="revealed"
+       hx-swap="outerHTML"&gt;
+    &lt;div class="text-center"&gt;Loading more...&lt;/div&gt;
+  &lt;/div&gt;
+{% templatetag openblock %} endif {% templatetag closeblock %}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h5 class="mt-4">Best Practices:</h5>
+    <ul>
+      <li>Put the loading trigger at the end of each page of results</li>
+      <li>Use <code>hx-swap="outerHTML"</code> on the trigger so it's replaced by new content + new trigger</li>
+      <li>Don't include a trigger on the last page - pagination stops automatically</li>
+      <li>Consider adding a threshold: <code>hx-trigger="revealed threshold:0.5"</code></li>
+    </ul>
+  </section>
+
+  <!-- Pattern 4: Modals -->
+  <section class="pattern-section" id="htmx-modals">
+    <h3>4. Modal Dialogs</h3>
+    
+    <div class="pattern-description">
+      <strong>HTMX Approach:</strong> Server returns complete modal HTML including Bootstrap classes.
+      HTMX inserts it into the DOM, and Bootstrap automatically handles the modal display.
+      Use the <code>htmx:afterSwap</code> event to programmatically show modals if needed.
+    </div>
+
+    <h5>Key Concepts:</h5>
+    <ul>
+      <li>Server returns the complete modal HTML structure</li>
+      <li>Modal is inserted into a container element</li>
+      <li>Bootstrap modal can be shown with <code>.modal('show')</code> or via event listeners</li>
+      <li>Use <code>hx-swap="innerHTML show:top"</code> to scroll to top when modal opens</li>
+    </ul>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mt-3" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#modal1-interface" type="button" role="tab">
+          Interface
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#modal1-code" type="button" role="tab">
+          Code
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Interface Tab -->
+      <div class="tab-pane fade show active" id="modal1-interface" role="tabpanel">
+        <div class="row mt-3">
+          <div class="col-md-8">
+            <p>Click the button to load product details in a modal:</p>
+            <button class="btn btn-primary"
+                    hx-get="{% url 'examples:product_detail_htmx' product_id=1 %}"
+                    hx-target="#modal-container-1"
+                    hx-swap="innerHTML">
+              View Product Details
+            </button>
+            <div id="modal-container-1"></div>
+          </div>
+          <div class="col-md-4">
+            <div class="callout callout-info">
+              <strong>Notice:</strong>
+              <ul class="mb-0">
+                <li>Modal HTML comes from server</li>
+                <li>No manual modal initialization</li>
+                <li>Content is dynamic</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Tab -->
+      <div class="tab-pane fade" id="modal1-code" role="tabpanel">
+        <div class="code-tab">
+          <div class="code-section">
+            <h6>HTML Template</h6>
+            <pre><code class="language-markup">&lt;button class="btn btn-primary"
+        hx-get="{% templatetag openblock %} url 'examples:product_detail_htmx' product_id=1 {% templatetag closeblock %}"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"&gt;
+  View Product Details
+&lt;/button&gt;
+&lt;div id="modal-container"&gt;&lt;/div&gt;</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Django View (views.py)</h6>
+            <pre><code class="language-python">@require_http_methods(["GET"])
+def product_detail_htmx(request, product_id):
+    """HTMX endpoint for loading product details in a modal."""
+    product = get_object_or_404(Product, pk=product_id)
+    return render(
+        request,
+        "examples/partials/product_modal.html",
+        {"product": product}
+    )</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Modal Partial (product_modal.html)</h6>
+            <pre><code class="language-markup">&lt;div class="modal fade" id="productModal" tabindex="-1" data-bs-backdrop="static"&gt;
+  &lt;div class="modal-dialog"&gt;
+    &lt;div class="modal-content"&gt;
+      &lt;div class="modal-header"&gt;
+        &lt;h5 class="modal-title"&gt;{% templatetag openvariable %} product.name {% templatetag closevariable %}&lt;/h5&gt;
+        &lt;button type="button" class="btn-close" data-bs-dismiss="modal"&gt;&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class="modal-body"&gt;
+        &lt;p&gt;{% templatetag openvariable %} product.description {% templatetag closevariable %}&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Price:&lt;/strong&gt; ${% templatetag openvariable %} product.price {% templatetag closevariable %}&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Category:&lt;/strong&gt; {% templatetag openvariable %} product.get_category_display {% templatetag closevariable %}&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div class="modal-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-bs-dismiss="modal"&gt;Close&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+  // Show modal after it's inserted into the DOM
+  var modal = new bootstrap.Modal(document.getElementById('productModal'));
+  modal.show();
+&lt;/script&gt;</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h5 class="mt-4">Best Practices:</h5>
+    <ul>
+      <li>Return complete modal structure from server</li>
+      <li>Use a dedicated container for modals</li>
+      <li>Include the dismiss button in the modal HTML</li>
+      <li>Consider using <code>hx-swap="innerHTML show:top"</code> for better UX</li>
+    </ul>
+  </section>
+
+  <!-- Pattern 5: Dynamic Lists -->
+  <section class="pattern-section" id="htmx-dynamic-lists">
+    <h3>5. Dynamic List Operations (Todo List)</h3>
+    
+    <div class="pattern-description">
+      <strong>HTMX Approach:</strong> Each operation (add, delete, toggle) is a separate HTTP request.
+      For additions, use <code>hx-swap="afterbegin"</code> to prepend. For deletions, use
+      <code>hx-swap="outerHTML"</code> with an empty response to remove the element.
+    </div>
+
+    <h5>Key Concepts:</h5>
+    <ul>
+      <li><code>hx-swap="afterbegin"</code>: Prepend new items to list</li>
+      <li><code>hx-delete</code>: HTTP DELETE request</li>
+      <li><code>hx-swap="outerHTML"</code>: Replace the element itself (useful for updates/deletes)</li>
+      <li><code>hx-confirm</code>: Built-in confirmation dialog</li>
+    </ul>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mt-3" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#list1-interface" type="button" role="tab">
+          Interface
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#list1-code" type="button" role="tab">
+          Code
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Interface Tab -->
+      <div class="tab-pane fade show active" id="list1-interface" role="tabpanel">
+        <div class="row mt-3">
+          <div class="col-md-8">
+            <form hx-post="{% url 'examples:task_create_htmx' %}"
+                  hx-target="#task-list-1"
+                  hx-swap="afterbegin"
+                  hx-on::after-request="if(event.detail.successful) this.reset()">
+              {% csrf_token %}
+              <div class="input-group mb-3">
+                <input type="text" class="form-control" name="title" placeholder="New task..." required>
+                <button type="submit" class="btn btn-primary">Add Task</button>
+              </div>
+            </form>
+            <div id="task-list-1">
+              <!-- Tasks will be inserted here -->
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="callout callout-info">
+              <strong>Try It:</strong>
+              <ul class="mb-0">
+                <li>Add new tasks</li>
+                <li>Toggle completion</li>
+                <li>Delete tasks</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Tab -->
+      <div class="tab-pane fade" id="list1-code" role="tabpanel">
+        <div class="code-tab">
+          <div class="code-section">
+            <h6>HTML Template (Add Form)</h6>
+            <pre><code class="language-markup">&lt;form hx-post="{% templatetag openblock %} url 'examples:task_create_htmx' {% templatetag closeblock %}"
+      hx-target="#task-list"
+      hx-swap="afterbegin"
+      hx-on::after-request="if(event.detail.successful) this.reset()"&gt;
+  {% templatetag openblock %} csrf_token {% templatetag closeblock %}
+  &lt;input type="text" name="title" placeholder="New task..." required&gt;
+  &lt;button type="submit"&gt;Add Task&lt;/button&gt;
+&lt;/form&gt;
+&lt;div id="task-list"&gt;&lt;/div&gt;</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Django Views (views.py)</h6>
+            <pre><code class="language-python">def task_create_htmx(request):
+    """HTMX endpoint to create a new task."""
+    title = request.POST.get('title', '').strip()
+    if title:
+        task = Task.objects.create(title=title, completed=False)
+        return render(
+            request,
+            "examples/partials/task_item.html",
+            {"task": task}
+        )
+    return HttpResponse(status=400)
+
+def task_toggle_htmx(request, task_id):
+    """HTMX endpoint to toggle task completion."""
+    task = get_object_or_404(Task, pk=task_id)
+    task.completed = not task.completed
+    task.save()
+    return render(
+        request,
+        "examples/partials/task_item.html",
+        {"task": task}
+    )
+
+def task_delete_htmx(request, task_id):
+    """HTMX endpoint to delete a task."""
+    task = get_object_or_404(Task, pk=task_id)
+    task.delete()
+    return HttpResponse(status=200)  # Empty response</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Task Item Partial (task_item.html)</h6>
+            <pre><code class="language-markup">&lt;div class="task-item {% templatetag openblock %} if task.completed {% templatetag closeblock %}completed{% templatetag openblock %} endif {% templatetag closeblock %}"
+     id="task-{% templatetag openvariable %} task.id {% templatetag closevariable %}"&gt;
+  &lt;input type="checkbox"
+         {% templatetag openblock %} if task.completed {% templatetag closeblock %}checked{% templatetag openblock %} endif {% templatetag closeblock %}
+         hx-post="{% templatetag openblock %} url 'examples:task_toggle_htmx' task_id=task.id {% templatetag closeblock %}"
+         hx-target="#task-{% templatetag openvariable %} task.id {% templatetag closevariable %}"
+         hx-swap="outerHTML"&gt;
+  &lt;span&gt;{% templatetag openvariable %} task.title {% templatetag closevariable %}&lt;/span&gt;
+  &lt;button hx-delete="{% templatetag openblock %} url 'examples:task_delete_htmx' task_id=task.id {% templatetag closeblock %}"
+          hx-target="#task-{% templatetag openvariable %} task.id {% templatetag closevariable %}"
+          hx-swap="outerHTML"
+          hx-confirm="Delete this task?"&gt;
+    Delete
+  &lt;/button&gt;
+&lt;/div&gt;</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h5 class="mt-4">Best Practices:</h5>
+    <ul>
+      <li>Use semantic HTTP methods (POST for create, DELETE for delete, etc.)</li>
+      <li>Return HTML fragments for updates</li>
+      <li>Return empty response for deletions with <code>hx-swap="outerHTML"</code></li>
+      <li>Reset forms on success with <code>hx-on::after-request</code></li>
+      <li>Use <code>hx-confirm</code> for destructive actions</li>
+    </ul>
+  </section>
+
+  <!-- Pattern 6: Dependent Dropdowns -->
+  <section class="pattern-section" id="htmx-dependent-dropdowns">
+    <h3>6. Dependent Dropdowns (Cascading Selects)</h3>
+    
+    <div class="pattern-description">
+      <strong>HTMX Approach:</strong> Each select has <code>hx-get</code> that triggers on change,
+      targeting the next dropdown. The server returns <code>&lt;option&gt;</code> elements
+      that replace the target select's contents.
+    </div>
+
+    <h5>Key Concepts:</h5>
+    <ul>
+      <li>Each level triggers the next level on <code>change</code></li>
+      <li>Server returns only the <code>&lt;option&gt;</code> elements</li>
+      <li>Use <code>hx-target</code> to specify which dropdown to update</li>
+      <li>Include query parameters to pass the selected value</li>
+    </ul>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mt-3" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#dropdown1-interface" type="button" role="tab">
+          Interface
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#dropdown1-code" type="button" role="tab">
+          Code
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Interface Tab -->
+      <div class="tab-pane fade show active" id="dropdown1-interface" role="tabpanel">
+        <div class="row mt-3">
+          <div class="col-md-8">
+            <form>
+              <div class="form-group">
+                <label>Country</label>
+                <select class="form-control" 
+                        name="country_id"
+                        hx-get="{% url 'examples:states_htmx' %}"
+                        hx-target="#state-select-1"
+                        hx-trigger="change">
+                  <option value="">Select a country</option>
+                  <option value="1">United States</option>
+                  <option value="2">Canada</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>State/Province</label>
+                <select class="form-control" 
+                        id="state-select-1"
+                        name="state_id"
+                        hx-get="{% url 'examples:cities_htmx' %}"
+                        hx-target="#city-select-1"
+                        hx-trigger="change">
+                  <option value="">Select a state</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>City</label>
+                <select class="form-control" id="city-select-1" name="city_id">
+                  <option value="">Select a city</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-4">
+            <div class="callout callout-info">
+              <strong>How It Works:</strong>
+              <ul class="mb-0">
+                <li>Select country → loads states</li>
+                <li>Select state → loads cities</li>
+                <li>No JavaScript required!</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Tab -->
+      <div class="tab-pane fade" id="dropdown1-code" role="tabpanel">
+        <div class="code-tab">
+          <div class="code-section">
+            <h6>HTML Template</h6>
+            <pre><code class="language-markup">&lt;select name="country_id"
+        hx-get="{% templatetag openblock %} url 'examples:states_htmx' {% templatetag closeblock %}"
+        hx-target="#state-select"
+        hx-trigger="change"&gt;
+  &lt;option value=""&gt;Select a country&lt;/option&gt;
+  &lt;!-- ... options ... --&gt;
+&lt;/select&gt;
+
+&lt;select id="state-select" name="state_id"
+        hx-get="{% templatetag openblock %} url 'examples:cities_htmx' {% templatetag closeblock %}"
+        hx-target="#city-select"
+        hx-trigger="change"&gt;
+  &lt;option value=""&gt;Select a state&lt;/option&gt;
+&lt;/select&gt;
+
+&lt;select id="city-select" name="city_id"&gt;
+  &lt;option value=""&gt;Select a city&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Django Views (views.py)</h6>
+            <pre><code class="language-python">def states_htmx(request):
+    """HTMX endpoint to load states for a country."""
+    country_id = request.GET.get('country_id')
+    if country_id:
+        states = State.objects.filter(country_id=country_id)
+    else:
+        states = []
+    return render(
+        request,
+        "examples/partials/state_options.html",
+        {"states": states}
+    )
+
+def cities_htmx(request):
+    """HTMX endpoint to load cities for a state."""
+    state_id = request.GET.get('state_id')
+    if state_id:
+        cities = City.objects.filter(state_id=state_id)
+    else:
+        cities = []
+    return render(
+        request,
+        "examples/partials/city_options.html",
+        {"cities": cities}
+    )</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Options Partial (state_options.html)</h6>
+            <pre><code class="language-markup">&lt;option value=""&gt;Select a state&lt;/option&gt;
+{% templatetag openblock %} for state in states {% templatetag closeblock %}
+  &lt;option value="{% templatetag openvariable %} state.id {% templatetag closevariable %}"&gt;{% templatetag openvariable %} state.name {% templatetag closevariable %}&lt;/option&gt;
+{% templatetag openblock %} endfor {% templatetag closeblock %}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h5 class="mt-4">Best Practices:</h5>
+    <ul>
+      <li>Return a default "Select..." option from the server</li>
+      <li>Use the <code>name</code> attribute to send selected values as query params</li>
+      <li>Consider showing loading indicators for slower endpoints</li>
+      <li>Clear dependent dropdowns when parent changes</li>
+    </ul>
+  </section>
+
+  <!-- Pattern 7: Polling -->
+  <section class="pattern-section" id="htmx-polling">
+    <h3>7. Polling / Auto-refresh</h3>
+    
+    <div class="pattern-description">
+      <strong>HTMX Approach:</strong> Use <code>hx-trigger="every Xs"</code> to poll the server
+      at regular intervals. HTMX automatically manages the polling lifecycle - no setInterval
+      needed. Polling stops when the element is removed from the DOM.
+    </div>
+
+    <h5>Key Concepts:</h5>
+    <ul>
+      <li><code>hx-trigger="every 3s"</code>: Poll every 3 seconds</li>
+      <li><code>hx-trigger="load, every 3s"</code>: Load immediately AND poll</li>
+      <li>Polling automatically stops when element is removed</li>
+      <li>Server returns updated HTML fragment each time</li>
+      <li>Use <code>hx-swap="none"</code> with <code>hx-swap-oob</code> for granular updates without flashing</li>
+    </ul>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mt-3" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#polling1-interface" type="button" role="tab">
+          Interface
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#polling1-code" type="button" role="tab">
+          Code
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Interface Tab -->
+      <div class="tab-pane fade show active" id="polling1-interface" role="tabpanel">
+        <div class="row mt-3">
+          <div class="col-md-8">
+            <div class="mb-3">
+              <span class="badge bg-success">Auto-updating every 3 seconds</span>
+            </div>
+            <div hx-get="{% url 'examples:system_status_htmx' %}"
+                 hx-trigger="load, every 3s"
+                 hx-swap="none">
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div id="status-1" class="status-card">
+                  <div class="text-center p-3"><span class="spinner"></span> Loading...</div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div id="status-2" class="status-card">
+                  <div class="text-center p-3"><span class="spinner"></span> Loading...</div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div id="status-3" class="status-card">
+                  <div class="text-center p-3"><span class="spinner"></span> Loading...</div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div id="status-4" class="status-card">
+                  <div class="text-center p-3"><span class="spinner"></span> Loading...</div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div id="status-5" class="status-card">
+                  <div class="text-center p-3"><span class="spinner"></span> Loading...</div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div id="status-6" class="status-card">
+                  <div class="text-center p-3"><span class="spinner"></span> Loading...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="callout callout-info">
+              <strong>Notice:</strong>
+              <ul class="mb-0">
+                <li>Updates automatically</li>
+                <li>No manual interval management</li>
+                <li>Watch for status changes</li>
+                <li>No flashing during updates</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Tab -->
+      <div class="tab-pane fade" id="polling1-code" role="tabpanel">
+        <div class="code-tab">
+          <div class="code-section">
+            <h6>HTML Template</h6>
+            <pre><code class="language-markup">&lt;!-- Polling trigger with no swap (uses out-of-band) --&gt;
+&lt;div hx-get="{% templatetag openblock %} url 'examples:system_status_htmx' {% templatetag closeblock %}"
+     hx-trigger="load, every 3s"
+     hx-swap="none"&gt;
+&lt;/div&gt;
+
+&lt;!-- Status cards with IDs that will be updated out-of-band --&gt;
+&lt;div id="status-1" class="status-card"&gt;Loading...&lt;/div&gt;
+&lt;div id="status-2" class="status-card"&gt;Loading...&lt;/div&gt;
+&lt;!-- ... more status cards ... --&gt;</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Django View (views.py)</h6>
+            <pre><code class="language-python">def system_status_htmx(request):
+    """HTMX endpoint for polling system status."""
+    statuses = SystemStatus.objects.all()[:6]
+    
+    # Update status randomly for demo
+    for status in statuses:
+        if random.random() < 0.2:  # 20% chance
+            status.status = random.choice(['online', 'warning', 'offline'])
+            status.response_time_ms = random.randint(50, 500)
+            status.uptime_percentage = round(random.uniform(95, 100), 2)
+            status.save()
+    
+    return render(
+        request,
+        "examples/partials/system_status.html",
+        {"statuses": statuses}
+    )</code></pre>
+          </div>
+
+          <div class="code-section">
+            <h6>Status Partial (system_status.html) - with Out-of-Band Swap</h6>
+            <pre><code class="language-markup">{% templatetag openblock %} for status in statuses {% templatetag closeblock %}
+  &lt;div id="status-{% templatetag openvariable %} status.id {% templatetag closevariable %}" 
+       class="status-card" 
+       hx-swap-oob="true"&gt;
+    &lt;span class="status-indicator {% templatetag openvariable %} status.status {% templatetag closevariable %}"&gt;&lt;/span&gt;
+    &lt;strong&gt;{% templatetag openvariable %} status.service_name {% templatetag closevariable %}&lt;/strong&gt;&lt;br&gt;
+    &lt;small&gt;
+      {% templatetag openvariable %} status.response_time_ms {% templatetag closevariable %}ms - 
+      {% templatetag openvariable %} status.uptime_percentage {% templatetag closevariable %}% uptime
+    &lt;/small&gt;
+  &lt;/div&gt;
+{% templatetag openblock %} endfor {% templatetag closeblock %}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h5 class="mt-4">Best Practices:</h5>
+    <ul>
+      <li>Use reasonable polling intervals (3-5 seconds minimum)</li>
+      <li>Consider using server-sent events (SSE) for real-time updates</li>
+      <li>Add a way for users to pause polling if needed</li>
+      <li>Use <code>hx-swap="none"</code> with <code>hx-swap-oob</code> for granular updates without flashing</li>
+      <li>Return the same HTML structure to avoid layout shifts</li>
+    </ul>
+  </section>
+
+  <!-- General HTMX Tips -->
+  <section class="pattern-section">
+    <h3>General HTMX Tips & Tricks</h3>
+    
+    <h5>Common Attributes:</h5>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Attribute</th>
+            <th>Purpose</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>hx-boost</code></td>
+            <td>Convert regular links/forms to AJAX</td>
+            <td><code>hx-boost="true"</code></td>
+          </tr>
+          <tr>
+            <td><code>hx-push-url</code></td>
+            <td>Update browser URL history</td>
+            <td><code>hx-push-url="true"</code></td>
+          </tr>
+          <tr>
+            <td><code>hx-confirm</code></td>
+            <td>Show confirmation dialog</td>
+            <td><code>hx-confirm="Are you sure?"</code></td>
+          </tr>
+          <tr>
+            <td><code>hx-disable</code></td>
+            <td>Disable element during request</td>
+            <td><code>hx-disable</code></td>
+          </tr>
+          <tr>
+            <td><code>hx-vals</code></td>
+            <td>Add extra values to request</td>
+            <td><code>hx-vals='{"key": "value"}'</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h5>Debugging Tips:</h5>
+    <ul>
+      <li>Use browser DevTools Network tab to inspect requests/responses</li>
+      <li>Add <code>htmx.logAll()</code> in console for detailed logging</li>
+      <li>Check that your server is returning HTML, not JSON</li>
+      <li>Verify CSRF tokens are included in POST requests</li>
+      <li>Use <code>hx-swap="innerHTML show:top"</code> to see where content is inserted</li>
+    </ul>
+
+    <h5>Performance Considerations:</h5>
+    <ul>
+      <li>Use appropriate debouncing delays for search inputs</li>
+      <li>Consider pagination over loading everything at once</li>
+      <li>Cache responses on the server when appropriate</li>
+      <li>Use CSS transitions for smooth updates</li>
+      <li>Minimize the size of HTML fragments returned</li>
+    </ul>
+  </section>
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  <!-- Prism.js for syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+{% endblock %}
+

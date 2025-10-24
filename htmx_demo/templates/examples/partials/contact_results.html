@@ -1,0 +1,20 @@
+{% if contacts %}
+  {% for contact in contacts %}
+    <div class="contact-item fade-in">
+      <strong>{{ contact.first_name }} {{ contact.last_name }}</strong><br>
+      <span class="text-muted">{{ contact.email }}</span>
+      {% if contact.company %}
+        <span class="badge bg-secondary">{{ contact.company }}</span>
+      {% endif %}
+    </div>
+  {% endfor %}
+{% else %}
+  <p class="text-muted">
+    {% if query %}
+      No contacts found for "{{ query }}"
+    {% else %}
+      No contacts available. Try the form submission example to create some!
+    {% endif %}
+  </p>
+{% endif %}
+

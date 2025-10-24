@@ -1,0 +1,9 @@
+<div class="alert alert-danger mt-3">
+  <strong>Please correct the following errors:</strong>
+  <ul class="mb-0">
+    {% for field, error in errors.items %}
+      <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+

@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Modal Dialogs - jQuery vs HTMX{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/examples.css' %}" rel="stylesheet">
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <style>
+    /* Constrain comparison columns to 50% width */
+    .comparison-side {
+      min-width: 0;
+      overflow: hidden;
+    }
+    .code-tab {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .code-tab pre {
+      margin: 0;
+      border-radius: 0.375rem;
+      margin-bottom: 0;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab pre[class*="language-"] {
+      margin: 0;
+      border-radius: 0.375rem;
+      background: #2d2d2d;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab code {
+      white-space: pre;
+      display: block;
+    }
+    .code-section {
+      margin-bottom: 1.5rem;
+    }
+    .code-section h6 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 0.25rem;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="examples-nav">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:index' %}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'examples:comparison' %}">Side-by-Side Comparison</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:htmx_deep_dive' %}">HTMX Deep Dive</a>
+      </li>
+    </ul>
+  </div>
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'examples:comparison' %}">Comparison</a></li>
+      <li class="breadcrumb-item active">Modal Dialogs</li>
+    </ol>
+  </nav>
+
+  <h1 class="mb-4">Pattern 4: Modal Dialogs</h1>
+  
+  <div class="alert alert-info">
+    <strong>Scenario:</strong> Open a modal with server-rendered product details.
+    <br><strong>Try it:</strong> Click "Open Product Details" to load and display modal content dynamically.
+    <br><strong>Compare:</strong> Switch to the "Code" tab to see implementation differences.
+  </div>
+
+  <div class="comparison-container">
+    <!-- jQuery Implementation -->
+    <div class="comparison-side">
+      <h4>
+        jQuery/AJAX
+        <span class="tech-badge jquery">jQuery</span>
+      </h4>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#jquery-interface" type="button">
+            Interface
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#jquery-code" type="button">
+            Code
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- jQuery Interface Tab -->
+        <div class="tab-pane fade show active" id="jquery-interface">
+          <div class="mt-3">
+            <button class="btn btn-primary" id="jquery-open-modal">
+              Open Product Details
+            </button>
+
+            <!-- jQuery Modal -->
+            <div class="modal fade" id="jquery-product-modal" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="jquery-modal-title">Loading...</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body" id="jquery-modal-body">
+                    <div class="text-center">
+                      <span class="spinner"></span> Loading...
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- jQuery Code Tab -->
+        <div class="tab-pane fade" id="jquery-code">
+          <div class="code-tab">
+            <div class="code-section">
+              <h6>HTML Template</h6>
+              <pre><code class="language-markup">&lt;button class="btn btn-primary" id="jquery-open-modal"&gt;
+  Open Product Details
+&lt;/button&gt;
+
+&lt;!-- Modal structure (Bootstrap 5) --&gt;
+&lt;div class="modal fade" id="jquery-product-modal"&gt;
+  &lt;div class="modal-dialog"&gt;
+    &lt;div class="modal-content"&gt;
+      &lt;div class="modal-header"&gt;
+        &lt;h5 class="modal-title" id="jquery-modal-title"&gt;Loading...&lt;/h5&gt;
+        &lt;button type="button" class="btn-close" data-bs-dismiss="modal"&gt;&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class="modal-body" id="jquery-modal-body"&gt;
+        &lt;div class="text-center"&gt;Loading...&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="modal-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-bs-dismiss="modal"&gt;Close&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>JavaScript (jQuery)</h6>
+              <pre><code class="language-javascript">// Manual modal control and AJAX data fetching
+$('#jquery-open-modal').on('click', function() {
+  // Initialize and show Bootstrap modal
+  const modal = new bootstrap.Modal($('#jquery-product-modal')[0]);
+  modal.show();
+  
+  // Reset to loading state
+  $('#jquery-modal-title').text('Loading...');
+  $('#jquery-modal-body').html('&lt;div class="text-center"&gt;&lt;span class="spinner"&gt;&lt;/span&gt; Loading...&lt;/div&gt;');
+  
+  // Fetch product data via AJAX
+  $.ajax({
+    url: '/examples/api/product/1/',
+    success: function(product) {
+      // Update modal title
+      $('#jquery-modal-title').text(product.name);
+      
+      // Build and insert HTML manually
+      $('#jquery-modal-body').html(
+        '&lt;p&gt;' + product.description + '&lt;/p&gt;' +
+        '&lt;div class="price"&gt;$' + product.price + '&lt;/div&gt;' +
+        '&lt;p&gt;&lt;span class="badge bg-secondary"&gt;' + product.category + '&lt;/span&gt; ' +
+        (product.in_stock ? 
+          '&lt;span class="badge bg-success"&gt;In Stock&lt;/span&gt;' : 
+          '&lt;span class="badge bg-danger"&gt;Out of Stock&lt;/span&gt;') +
+        '&lt;/p&gt;'
+      );
+    },
+    error: function() {
+      $('#jquery-modal-body').html('&lt;div class="alert alert-danger"&gt;Error loading product&lt;/div&gt;');
+    }
+  });
+});
+
+// Key steps:
+// 1. Manually initialize Bootstrap modal
+// 2. Show modal before data loads
+// 3. Make separate AJAX request
+// 4. Build HTML from JSON response
+// 5. Update DOM elements individually</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Django View (Python)</h6>
+              <pre><code class="language-python">@require_http_methods(["GET"])
+def product_detail_ajax(request, product_id):
+    """AJAX endpoint - returns JSON data."""
+    product = get_object_or_404(Product, id=product_id)
+    
+    data = {
+        "id": product.id,
+        "name": product.name,
+        "description": product.description,
+        "price": str(product.price),
+        "category": product.get_category_display(),
+        "in_stock": product.in_stock,
+    }
+    
+    return JsonResponse(data)</code></pre>
+            </div>
+
+            <div class="alert alert-warning">
+              <strong>Total Lines:</strong> ~22 lines (HTML) + ~30 lines (JS) = <strong>~52 lines</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HTMX Implementation -->
+    <div class="comparison-side">
+      <h4>
+        HTMX
+        <span class="tech-badge htmx">HTMX</span>
+      </h4>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#htmx-interface" type="button">
+            Interface
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#htmx-code" type="button">
+            Code
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- HTMX Interface Tab -->
+        <div class="tab-pane fade show active" id="htmx-interface">
+          <div class="mt-3">
+            <button class="btn btn-primary"
+                    hx-get="{% url 'examples:product_detail_htmx' product_id=product_id %}"
+                    hx-target="#htmx-modal-container"
+                    hx-swap="innerHTML">
+              Open Product Details
+            </button>
+
+            <div id="htmx-modal-container"></div>
+          </div>
+        </div>
+
+        <!-- HTMX Code Tab -->
+        <div class="tab-pane fade" id="htmx-code">
+          <div class="code-tab">
+            <div class="code-section">
+              <h6>HTML Template (with HTMX attributes)</h6>
+              <pre><code class="language-markup">&lt;button class="btn btn-primary"
+        hx-get="{% templatetag openblock %} url 'examples:product_detail_htmx' product_id=1 {% templatetag closeblock %}"
+        hx-target="#htmx-modal-container"
+        hx-swap="innerHTML"&gt;
+  Open Product Details
+&lt;/button&gt;
+
+&lt;div id="htmx-modal-container"&gt;&lt;/div&gt;
+
+&lt;!-- That's it! No modal HTML structure needed --&gt;
+&lt;!-- Server returns the complete modal HTML --&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Server Response (Partial Template)</h6>
+              <pre><code class="language-markup">&lt;!-- Server returns complete Bootstrap modal HTML --&gt;
+&lt;div class="modal fade" id="htmx-product-modal" tabindex="-1"&gt;
+  &lt;div class="modal-dialog"&gt;
+    &lt;div class="modal-content"&gt;
+      &lt;div class="modal-header"&gt;
+        &lt;h5 class="modal-title"&gt;{% templatetag openvariable %} product.name {% templatetag closevariable %}&lt;/h5&gt;
+        &lt;button type="button" class="btn-close" data-bs-dismiss="modal"&gt;&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class="modal-body"&gt;
+        &lt;p&gt;{% templatetag openvariable %} product.description {% templatetag closevariable %}&lt;/p&gt;
+        &lt;div class="price"&gt;${% templatetag openvariable %} product.price {% templatetag closevariable %}&lt;/div&gt;
+        &lt;!-- Product details --&gt;
+      &lt;/div&gt;
+      &lt;div class="modal-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-bs-dismiss="modal"&gt;Close&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+  // Automatically show modal when inserted
+  const modal = new bootstrap.Modal(document.getElementById('htmx-product-modal'));
+  modal.show();
+&lt;/script&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Django View (Python)</h6>
+              <pre><code class="language-python">@require_http_methods(["GET"])
+def product_detail_htmx(request, product_id):
+    """HTMX endpoint - returns complete modal HTML."""
+    product = get_object_or_404(Product, id=product_id)
+    
+    # Return complete modal HTML with product data
+    return render(
+        request,
+        "examples/partials/product_modal.html",
+        {"product": product}
+    )
+
+# Key differences:
+# - Returns HTML, not JSON
+# - Server controls the entire modal structure
+# - No client-side HTML building required</code></pre>
+            </div>
+
+            <div class="alert alert-success">
+              <strong>Total Lines:</strong> ~10 lines (HTML) + 0 lines (JS) = <strong>~10 lines</strong>
+              <br><strong>Code Reduction:</strong> 81% less code!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-info mt-3">
+    <strong>Key Differences:</strong>
+    <ul class="mb-0">
+      <li><strong>jQuery:</strong> Manual Bootstrap modal initialization, AJAX data fetching, and content population (~52 lines)</li>
+      <li><strong>HTMX:</strong> Server returns complete modal HTML; automatic insertion and Bootstrap integration (~10 lines)</li>
+      <li><strong>State Management:</strong> jQuery manages modal state in JS; HTMX lets Bootstrap handle it</li>
+      <li><strong>HTML Building:</strong> jQuery builds HTML from JSON; HTMX receives ready-to-use HTML</li>
+    </ul>
+  </div>
+
+  <div class="mt-4">
+    <nav aria-label="Pattern navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison_infinite_scroll' %}">Previous: Infinite Scroll</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison' %}">All Patterns</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison_dynamic_lists' %}">Next: Dynamic Lists</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+{% endblock %}
+
+{% block inline_javascript %}
+  <!-- Prism.js for syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+
+  <script>
+    // jQuery: Modal Dialog
+    $('#jquery-open-modal').on('click', function() {
+      const modal = new bootstrap.Modal($('#jquery-product-modal')[0]);
+      modal.show();
+      
+      $('#jquery-modal-title').text('Loading...');
+      $('#jquery-modal-body').html('<div class="text-center"><span class="spinner"></span> Loading...</div>');
+      
+      $.ajax({
+        url: '{% url "examples:product_detail_ajax" product_id=product_id %}',
+        success: function(product) {
+          $('#jquery-modal-title').text(product.name);
+          $('#jquery-modal-body').html(
+            '<p>' + product.description + '</p>' +
+            '<div class="price">$' + product.price + '</div>' +
+            '<p><span class="badge bg-secondary">' + product.category + '</span> ' +
+            (product.in_stock ? '<span class="badge bg-success">In Stock</span>' : '<span class="badge bg-danger">Out of Stock</span>') +
+            '</p>'
+          );
+        }
+      });
+    });
+  </script>
+{% endblock %}

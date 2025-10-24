@@ -20,6 +20,7 @@ urlpatterns = [
     path("users/", include("htmx_demo.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
+    path("examples/", include("htmx_demo.examples.urls", namespace="examples")),
     # ...
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),

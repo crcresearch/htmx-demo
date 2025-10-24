@@ -1,0 +1,768 @@
+[
+  {
+    "model": "examples.contact",
+    "pk": 1,
+    "fields": {
+      "first_name": "Sarah",
+      "last_name": "Chen",
+      "email": "sarah.chen@techcorp.com",
+      "phone": "+1-555-0123",
+      "company": "TechCorp Industries",
+      "message": "Interested in discussing enterprise solutions for our team of 500+ engineers.",
+      "created_at": "2025-01-15T10:30:00Z"
+    }
+  },
+  {
+    "model": "examples.contact",
+    "pk": 2,
+    "fields": {
+      "first_name": "Marcus",
+      "last_name": "Johnson",
+      "email": "mjohnson@innovateai.io",
+      "phone": "+1-555-0234",
+      "company": "Innovate AI",
+      "message": "Looking for scalable web solutions for our AI platform.",
+      "created_at": "2025-01-14T14:45:00Z"
+    }
+  },
+  {
+    "model": "examples.contact",
+    "pk": 3,
+    "fields": {
+      "first_name": "Emily",
+      "last_name": "Rodriguez",
+      "email": "emily.r@cloudnative.dev",
+      "phone": "+1-555-0345",
+      "company": "CloudNative Solutions",
+      "message": "Need help migrating our legacy jQuery applications to modern frameworks.",
+      "created_at": "2025-01-13T09:15:00Z"
+    }
+  },
+  {
+    "model": "examples.contact",
+    "pk": 4,
+    "fields": {
+      "first_name": "David",
+      "last_name": "Kim",
+      "email": "dkim@startupaccel.com",
+      "phone": "+1-555-0456",
+      "company": "Startup Accelerator",
+      "message": "Exploring HTMX for rapid prototyping. Would love to schedule a demo.",
+      "created_at": "2025-01-12T16:20:00Z"
+    }
+  },
+  {
+    "model": "examples.contact",
+    "pk": 5,
+    "fields": {
+      "first_name": "Priya",
+      "last_name": "Patel",
+      "email": "ppatel@edutech.org",
+      "phone": "+1-555-0567",
+      "company": "EduTech Platform",
+      "message": "Building an interactive learning platform. Interested in performance optimization strategies.",
+      "created_at": "2025-01-11T11:30:00Z"
+    }
+  },
+  {
+    "model": "examples.contact",
+    "pk": 6,
+    "fields": {
+      "first_name": "James",
+      "last_name": "Anderson",
+      "email": "j.anderson@financeplus.com",
+      "phone": "+1-555-0678",
+      "company": "Finance Plus",
+      "message": "Security-focused financial dashboard development inquiry.",
+      "created_at": "2025-01-10T13:00:00Z"
+    }
+  },
+  {
+    "model": "examples.contact",
+    "pk": 7,
+    "fields": {
+      "first_name": "Olivia",
+      "last_name": "Martinez",
+      "email": "olivia@healthtech.io",
+      "phone": "+1-555-0789",
+      "company": "HealthTech Innovations",
+      "message": "Developing a patient portal with real-time updates. HTMX seems perfect!",
+      "created_at": "2025-01-09T08:45:00Z"
+    }
+  },
+  {
+    "model": "examples.contact",
+    "pk": 8,
+    "fields": {
+      "first_name": "Alex",
+      "last_name": "Thompson",
+      "email": "athompson@retailsolutions.com",
+      "phone": "+1-555-0890",
+      "company": "Retail Solutions Inc",
+      "message": "E-commerce platform modernization - need infinite scroll and live search.",
+      "created_at": "2025-01-08T15:30:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 1,
+    "fields": {
+      "name": "Wireless Mechanical Keyboard",
+      "description": "Premium wireless mechanical keyboard with RGB backlighting, hot-swappable switches, and 80-hour battery life. Perfect for developers and gamers alike.",
+      "price": "149.99",
+      "category": "electronics",
+      "in_stock": true,
+      "created_at": "2025-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 2,
+    "fields": {
+      "name": "4K Ultrawide Monitor",
+      "description": "34-inch curved 4K ultrawide monitor with HDR support, 144Hz refresh rate, and USB-C connectivity. Ideal for multitasking and immersive work.",
+      "price": "799.99",
+      "category": "electronics",
+      "in_stock": true,
+      "created_at": "2025-01-15T09:30:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 3,
+    "fields": {
+      "name": "Ergonomic Office Chair",
+      "description": "Premium ergonomic chair with lumbar support, adjustable armrests, and breathable mesh back. Rated for 8+ hours of comfortable sitting.",
+      "price": "399.99",
+      "category": "home",
+      "in_stock": true,
+      "created_at": "2025-01-14T14:00:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 4,
+    "fields": {
+      "name": "Standing Desk Converter",
+      "description": "Height-adjustable standing desk converter that sits on your existing desk. Gas-spring assisted lift mechanism for easy adjustment. Holds up to 35 lbs.",
+      "price": "249.99",
+      "category": "home",
+      "in_stock": true,
+      "created_at": "2025-01-14T13:30:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 5,
+    "fields": {
+      "name": "Noise-Cancelling Headphones",
+      "description": "Premium over-ear headphones with active noise cancellation, 30-hour battery life, and studio-quality sound. Perfect for focused work sessions.",
+      "price": "349.99",
+      "category": "electronics",
+      "in_stock": true,
+      "created_at": "2025-01-13T11:00:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 6,
+    "fields": {
+      "name": "Clean Code: A Handbook of Agile Software Craftsmanship",
+      "description": "Robert C. Martin's classic guide to writing clean, maintainable code. Essential reading for professional developers.",
+      "price": "42.99",
+      "category": "books",
+      "in_stock": true,
+      "created_at": "2025-01-13T10:30:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 7,
+    "fields": {
+      "name": "The Pragmatic Programmer",
+      "description": "20th Anniversary Edition - Your journey to mastery. Timeless wisdom for modern software development.",
+      "price": "44.99",
+      "category": "books",
+      "in_stock": true,
+      "created_at": "2025-01-12T16:00:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 8,
+    "fields": {
+      "name": "Merino Wool Developer Hoodie",
+      "description": "Super soft merino wool hoodie designed for developers. Temperature regulating, odor resistant, and includes hidden pockets for cables.",
+      "price": "89.99",
+      "category": "clothing",
+      "in_stock": true,
+      "created_at": "2025-01-12T15:30:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 9,
+    "fields": {
+      "name": "Mechanical Keyboard Wrist Rest",
+      "description": "Premium memory foam wrist rest with cooling gel layer. Ergonomically designed to reduce strain during long coding sessions.",
+      "price": "34.99",
+      "category": "electronics",
+      "in_stock": true,
+      "created_at": "2025-01-11T14:00:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 10,
+    "fields": {
+      "name": "USB-C Docking Station",
+      "description": "Universal USB-C dock with dual 4K display support, 100W power delivery, Ethernet, and multiple USB ports. One cable to rule them all.",
+      "price": "199.99",
+      "category": "electronics",
+      "in_stock": true,
+      "created_at": "2025-01-11T13:30:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 11,
+    "fields": {
+      "name": "Desk Cable Management Kit",
+      "description": "Complete cable management solution with under-desk trays, clips, and sleeves. Keep your workspace clean and organized.",
+      "price": "29.99",
+      "category": "home",
+      "in_stock": true,
+      "created_at": "2025-01-10T12:00:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 12,
+    "fields": {
+      "name": "Blue Light Blocking Glasses",
+      "description": "Stylish computer glasses that block 99% of blue light. Reduce eye strain during long screen time. Includes anti-glare coating.",
+      "price": "49.99",
+      "category": "electronics",
+      "in_stock": true,
+      "created_at": "2025-01-10T11:30:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 13,
+    "fields": {
+      "name": "Smart LED Desk Lamp",
+      "description": "App-controlled LED desk lamp with adjustable color temperature (2700K-6500K), brightness control, and USB charging port.",
+      "price": "79.99",
+      "category": "electronics",
+      "in_stock": false,
+      "created_at": "2025-01-09T10:00:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 14,
+    "fields": {
+      "name": "Refactoring: Improving the Design of Existing Code",
+      "description": "Martin Fowler's comprehensive guide to refactoring. Learn systematic techniques to improve your codebase.",
+      "price": "54.99",
+      "category": "books",
+      "in_stock": true,
+      "created_at": "2025-01-09T09:30:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 15,
+    "fields": {
+      "name": "Running Shoes - CloudRunner Pro",
+      "description": "Lightweight running shoes with responsive cushioning and breathable mesh upper. Perfect for daily training runs.",
+      "price": "129.99",
+      "category": "sports",
+      "in_stock": true,
+      "created_at": "2025-01-08T15:00:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 16,
+    "fields": {
+      "name": "Yoga Mat with Alignment Lines",
+      "description": "Premium 6mm thick yoga mat with alignment guides. Non-slip surface and eco-friendly materials.",
+      "price": "59.99",
+      "category": "sports",
+      "in_stock": true,
+      "created_at": "2025-01-08T14:30:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 17,
+    "fields": {
+      "name": "Adjustable Dumbbells Set",
+      "description": "Space-saving adjustable dumbbells ranging from 5-52.5 lbs per dumbbell. Perfect for home workouts.",
+      "price": "299.99",
+      "category": "sports",
+      "in_stock": false,
+      "created_at": "2025-01-07T13:00:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 18,
+    "fields": {
+      "name": "Insulated Water Bottle",
+      "description": "40oz stainless steel water bottle that keeps drinks cold for 24 hours or hot for 12 hours. BPA-free with leak-proof lid.",
+      "price": "39.99",
+      "category": "sports",
+      "in_stock": true,
+      "created_at": "2025-01-07T12:30:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 19,
+    "fields": {
+      "name": "Programming T-Shirt Collection",
+      "description": "Pack of 3 comfortable cotton t-shirts with clever programming jokes. Available in multiple colors.",
+      "price": "49.99",
+      "category": "clothing",
+      "in_stock": true,
+      "created_at": "2025-01-06T11:00:00Z"
+    }
+  },
+  {
+    "model": "examples.product",
+    "pk": 20,
+    "fields": {
+      "name": "Indoor Plant Starter Kit",
+      "description": "Collection of 3 easy-care indoor plants perfect for office spaces. Includes decorative pots and care instructions.",
+      "price": "64.99",
+      "category": "home",
+      "in_stock": true,
+      "created_at": "2025-01-06T10:30:00Z"
+    }
+  },
+  {
+    "model": "examples.task",
+    "pk": 1,
+    "fields": {
+      "title": "Review pull requests from team",
+      "description": "",
+      "completed": false,
+      "created_at": "2025-01-15T09:00:00Z",
+      "completed_at": null
+    }
+  },
+  {
+    "model": "examples.task",
+    "pk": 2,
+    "fields": {
+      "title": "Refactor authentication module",
+      "description": "",
+      "completed": false,
+      "created_at": "2025-01-15T08:30:00Z",
+      "completed_at": null
+    }
+  },
+  {
+    "model": "examples.task",
+    "pk": 3,
+    "fields": {
+      "title": "Update project documentation",
+      "description": "",
+      "completed": true,
+      "created_at": "2025-01-14T14:00:00Z",
+      "completed_at": "2025-01-14T16:30:00Z"
+    }
+  },
+  {
+    "model": "examples.task",
+    "pk": 4,
+    "fields": {
+      "title": "Fix bug in user dashboard",
+      "description": "",
+      "completed": true,
+      "created_at": "2025-01-14T10:00:00Z",
+      "completed_at": "2025-01-14T11:45:00Z"
+    }
+  },
+  {
+    "model": "examples.task",
+    "pk": 5,
+    "fields": {
+      "title": "Optimize database queries",
+      "description": "",
+      "completed": false,
+      "created_at": "2025-01-13T16:00:00Z",
+      "completed_at": null
+    }
+  },
+  {
+    "model": "examples.task",
+    "pk": 6,
+    "fields": {
+      "title": "Set up CI/CD pipeline",
+      "description": "",
+      "completed": true,
+      "created_at": "2025-01-12T09:00:00Z",
+      "completed_at": "2025-01-13T10:00:00Z"
+    }
+  },
+  {
+    "model": "examples.task",
+    "pk": 7,
+    "fields": {
+      "title": "Write unit tests for API endpoints",
+      "description": "",
+      "completed": false,
+      "created_at": "2025-01-11T11:00:00Z",
+      "completed_at": null
+    }
+  },
+  {
+    "model": "examples.country",
+    "pk": 1,
+    "fields": {
+      "name": "United States",
+      "code": "US"
+    }
+  },
+  {
+    "model": "examples.country",
+    "pk": 2,
+    "fields": {
+      "name": "Canada",
+      "code": "CA"
+    }
+  },
+  {
+    "model": "examples.state",
+    "pk": 1,
+    "fields": {
+      "name": "California",
+      "code": "CA",
+      "country": 1
+    }
+  },
+  {
+    "model": "examples.state",
+    "pk": 2,
+    "fields": {
+      "name": "New York",
+      "code": "NY",
+      "country": 1
+    }
+  },
+  {
+    "model": "examples.state",
+    "pk": 3,
+    "fields": {
+      "name": "Texas",
+      "code": "TX",
+      "country": 1
+    }
+  },
+  {
+    "model": "examples.state",
+    "pk": 4,
+    "fields": {
+      "name": "Florida",
+      "code": "FL",
+      "country": 1
+    }
+  },
+  {
+    "model": "examples.state",
+    "pk": 5,
+    "fields": {
+      "name": "Washington",
+      "code": "WA",
+      "country": 1
+    }
+  },
+  {
+    "model": "examples.state",
+    "pk": 6,
+    "fields": {
+      "name": "Ontario",
+      "code": "ON",
+      "country": 2
+    }
+  },
+  {
+    "model": "examples.state",
+    "pk": 7,
+    "fields": {
+      "name": "British Columbia",
+      "code": "BC",
+      "country": 2
+    }
+  },
+  {
+    "model": "examples.state",
+    "pk": 8,
+    "fields": {
+      "name": "Quebec",
+      "code": "QC",
+      "country": 2
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 1,
+    "fields": {
+      "name": "San Francisco",
+      "state": 1
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 2,
+    "fields": {
+      "name": "Los Angeles",
+      "state": 1
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 3,
+    "fields": {
+      "name": "San Diego",
+      "state": 1
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 4,
+    "fields": {
+      "name": "Sacramento",
+      "state": 1
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 5,
+    "fields": {
+      "name": "New York City",
+      "state": 2
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 6,
+    "fields": {
+      "name": "Buffalo",
+      "state": 2
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 7,
+    "fields": {
+      "name": "Rochester",
+      "state": 2
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 8,
+    "fields": {
+      "name": "Houston",
+      "state": 3
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 9,
+    "fields": {
+      "name": "Austin",
+      "state": 3
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 10,
+    "fields": {
+      "name": "Dallas",
+      "state": 3
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 11,
+    "fields": {
+      "name": "San Antonio",
+      "state": 3
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 12,
+    "fields": {
+      "name": "Miami",
+      "state": 4
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 13,
+    "fields": {
+      "name": "Orlando",
+      "state": 4
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 14,
+    "fields": {
+      "name": "Tampa",
+      "state": 4
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 15,
+    "fields": {
+      "name": "Seattle",
+      "state": 5
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 16,
+    "fields": {
+      "name": "Spokane",
+      "state": 5
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 17,
+    "fields": {
+      "name": "Tacoma",
+      "state": 5
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 18,
+    "fields": {
+      "name": "Toronto",
+      "state": 6
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 19,
+    "fields": {
+      "name": "Ottawa",
+      "state": 6
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 20,
+    "fields": {
+      "name": "Vancouver",
+      "state": 7
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 21,
+    "fields": {
+      "name": "Victoria",
+      "state": 7
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 22,
+    "fields": {
+      "name": "Montreal",
+      "state": 8
+    }
+  },
+  {
+    "model": "examples.city",
+    "pk": 23,
+    "fields": {
+      "name": "Quebec City",
+      "state": 8
+    }
+  },
+  {
+    "model": "examples.systemstatus",
+    "pk": 1,
+    "fields": {
+      "service_name": "API Gateway",
+      "status": "operational",
+      "response_time_ms": 42,
+      "uptime_percentage": "99.99",
+      "last_check": "2025-01-15T10:00:00Z",
+      "message": "All systems operational"
+    }
+  },
+  {
+    "model": "examples.systemstatus",
+    "pk": 2,
+    "fields": {
+      "service_name": "Database Cluster",
+      "status": "operational",
+      "response_time_ms": 8,
+      "uptime_percentage": "99.95",
+      "last_check": "2025-01-15T10:00:00Z",
+      "message": "Primary and replica nodes healthy"
+    }
+  },
+  {
+    "model": "examples.systemstatus",
+    "pk": 3,
+    "fields": {
+      "service_name": "Authentication Service",
+      "status": "operational",
+      "response_time_ms": 15,
+      "uptime_percentage": "99.98",
+      "last_check": "2025-01-15T10:00:00Z",
+      "message": "OAuth and JWT services running smoothly"
+    }
+  },
+  {
+    "model": "examples.systemstatus",
+    "pk": 4,
+    "fields": {
+      "service_name": "File Storage",
+      "status": "degraded",
+      "response_time_ms": 234,
+      "uptime_percentage": "98.50",
+      "last_check": "2025-01-15T10:00:00Z",
+      "message": "Elevated latency detected - investigating"
+    }
+  },
+  {
+    "model": "examples.systemstatus",
+    "pk": 5,
+    "fields": {
+      "service_name": "Email Service",
+      "status": "operational",
+      "response_time_ms": 125,
+      "uptime_percentage": "99.92",
+      "last_check": "2025-01-15T10:00:00Z",
+      "message": "Queue processing normally"
+    }
+  },
+  {
+    "model": "examples.systemstatus",
+    "pk": 6,
+    "fields": {
+      "service_name": "Search Engine",
+      "status": "operational",
+      "response_time_ms": 67,
+      "uptime_percentage": "99.89",
+      "last_check": "2025-01-15T10:00:00Z",
+      "message": "Index up to date"
+    }
+  }
+]
+

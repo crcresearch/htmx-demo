@@ -1,0 +1,17 @@
+<div class="task-item {% if task.completed %}completed{% endif %} htmx-added" id="task-{{ task.id }}">
+  <input type="checkbox" 
+         class="form-check-input" 
+         {% if task.completed %}checked{% endif %}
+         hx-post="{% url 'examples:task_toggle_htmx' task.id %}"
+         hx-target="#task-{{ task.id }}"
+         hx-swap="outerHTML">
+  <div class="task-title">{{ task.title }}</div>
+  <button class="btn btn-sm btn-danger"
+          hx-delete="{% url 'examples:task_delete_htmx' task.id %}"
+          hx-target="#task-{{ task.id }}"
+          hx-swap="outerHTML swap:1s"
+          hx-confirm="Are you sure you want to delete this task?">
+    Delete
+  </button>
+</div>
+

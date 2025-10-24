@@ -1,0 +1,30 @@
+{% for status in statuses %}
+  <div id="status-{{ status.id }}" class="status-card" hx-swap-oob="true">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <span class="status-indicator {{ status.status }}"></span>
+        <strong>{{ status.service_name }}</strong>
+      </div>
+      <div class="text-end">
+        <small class="text-muted">{{ status.response_time_ms }}ms</small>
+      </div>
+    </div>
+    <div class="mt-2">
+      <small class="text-muted">
+        Uptime: {{ status.uptime_percentage }}%
+      </small>
+      {% if status.status != 'operational' %}
+        <br>
+        <span class="badge bg-warning">{{ status.get_status_display }}</span>
+      {% endif %}
+    </div>
+    {% if status.message %}
+      <div class="mt-2">
+        <small>{{ status.message }}</small>
+      </div>
+    {% endif %}
+  </div>
+{% empty %}
+  <p class="text-muted">No system status data available. Create some in the Django admin panel.</p>
+{% endfor %}
+

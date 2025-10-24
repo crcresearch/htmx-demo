@@ -1,0 +1,41 @@
+<!-- HTMX Modal -->
+<div class="modal fade" id="htmx-product-modal" tabindex="-1" aria-labelledby="htmxProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="htmxProductModalLabel">{{ product.name }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>{{ product.description }}</p>
+        <div class="price mb-3">${{ product.price }}</div>
+        <p>
+          <span class="badge bg-secondary">{{ product.get_category_display }}</span>
+          {% if product.in_stock %}
+            <span class="badge bg-success">In Stock</span>
+          {% else %}
+            <span class="badge bg-danger">Out of Stock</span>
+          {% endif %}
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        {% if product.in_stock %}
+          <button type="button" class="btn btn-primary">Add to Cart</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Show the modal when it's inserted
+  var htmxModal = new bootstrap.Modal(document.getElementById('htmx-product-modal'));
+  htmxModal.show();
+  
+  // Clean up when modal is hidden
+  document.getElementById('htmx-product-modal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('htmx-product-modal').remove();
+  });
+</script>
+

@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Live Search - jQuery vs HTMX{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/examples.css' %}" rel="stylesheet">
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <style>
+    /* Constrain comparison columns to 50% width */
+    .comparison-side {
+      min-width: 0;
+      overflow: hidden;
+    }
+    .code-tab {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .code-tab pre {
+      margin: 0;
+      border-radius: 0.375rem;
+      margin-bottom: 0;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab pre[class*="language-"] {
+      margin: 0;
+      border-radius: 0.375rem;
+      background: #2d2d2d;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .code-tab code {
+      white-space: pre;
+      display: block;
+    }
+    .code-section {
+      margin-bottom: 1.5rem;
+    }
+    .code-section h6 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 0.25rem;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="examples-nav">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:index' %}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'examples:comparison' %}">Side-by-Side Comparison</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'examples:htmx_deep_dive' %}">HTMX Deep Dive</a>
+      </li>
+    </ul>
+  </div>
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'examples:comparison' %}">Comparison</a></li>
+      <li class="breadcrumb-item active">Live Search</li>
+    </ol>
+  </nav>
+
+  <h1 class="mb-4">Pattern 2: Live Search/Filtering</h1>
+  
+  <div class="alert alert-info">
+    <strong>Scenario:</strong> Search contacts in real-time as you type.
+    <br><strong>Try it:</strong> Type in the search box to filter results with automatic debouncing.
+    <br><strong>Compare:</strong> Switch to the "Code" tab to see implementation differences.
+  </div>
+
+  <div class="comparison-container">
+    <!-- jQuery Implementation -->
+    <div class="comparison-side">
+      <h4>
+        jQuery/AJAX
+        <span class="tech-badge jquery">jQuery</span>
+      </h4>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#jquery-interface" type="button">
+            Interface
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#jquery-code" type="button">
+            Code
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- jQuery Interface Tab -->
+        <div class="tab-pane fade show active" id="jquery-interface">
+          <div class="form-group mt-3">
+            <label for="jquery-search">Search Contacts</label>
+            <input type="text" 
+                   class="form-control" 
+                   id="jquery-search" 
+                   placeholder="Type to search...">
+            <span class="spinner" id="jquery-search-spinner" style="display: none; margin-top: 0.5rem;"></span>
+          </div>
+          <div id="jquery-search-results"></div>
+        </div>
+
+        <!-- jQuery Code Tab -->
+        <div class="tab-pane fade" id="jquery-code">
+          <div class="code-tab">
+            <div class="code-section">
+              <h6>HTML Template</h6>
+              <pre><code class="language-markup">&lt;div class="form-group"&gt;
+  &lt;label for="jquery-search"&gt;Search Contacts&lt;/label&gt;
+  &lt;input type="text" 
+         class="form-control" 
+         id="jquery-search" 
+         placeholder="Type to search..."&gt;
+  &lt;span class="spinner" id="jquery-search-spinner"&gt;&lt;/span&gt;
+&lt;/div&gt;
+&lt;div id="jquery-search-results"&gt;&lt;/div&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>JavaScript (jQuery)</h6>
+              <pre><code class="language-javascript">// Live Search with Manual Debouncing
+let searchTimeout;
+
+$('#jquery-search').on('keyup', function() {
+  // Clear previous timeout (debouncing)
+  clearTimeout(searchTimeout);
+  const query = $(this).val();
+  
+  // Show loading spinner
+  $('#jquery-search-spinner').show();
+  
+  // Set new timeout to delay the search
+  searchTimeout = setTimeout(function() {
+    $.ajax({
+      url: '/examples/api/contacts/search/',
+      data: { q: query },
+      success: function(response) {
+        $('#jquery-search-spinner').hide();
+        
+        // Build HTML from JSON response
+        let html = '';
+        if (response.results.length === 0) {
+          html = '&lt;p class="text-muted"&gt;No contacts found&lt;/p&gt;';
+        } else {
+          response.results.forEach(function(contact) {
+            html += '&lt;div class="contact-item"&gt;' +
+              '&lt;strong&gt;' + contact.first_name + ' ' + 
+              contact.last_name + '&lt;/strong&gt;&lt;br&gt;' +
+              contact.email + 
+              (contact.company ? ' - ' + contact.company : '') +
+              '&lt;/div&gt;';
+          });
+        }
+        
+        // Update DOM with results
+        $('#jquery-search-results').html(html);
+      }
+    });
+  }, 300); // 300ms debounce delay
+});</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Django View (Python)</h6>
+              <pre><code class="language-python">def contact_search_ajax(request):
+    query = request.GET.get("q", "").strip()
+    
+    if not query:
+        contacts = Contact.objects.all()[:20]
+    else:
+        contacts = Contact.objects.filter(
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(email__icontains=query) |
+            Q(company__icontains=query)
+        )[:20]
+    
+    # Return JSON
+    data = [
+        {
+            "id": c.id,
+            "first_name": c.first_name,
+            "last_name": c.last_name,
+            "email": c.email,
+            "company": c.company,
+        }
+        for c in contacts
+    ]
+    
+    return JsonResponse({"results": data, "count": len(data)})</code></pre>
+            </div>
+
+            <div class="alert alert-warning">
+              <strong>Total Lines:</strong> ~12 lines (HTML) + ~40 lines (JS) = <strong>~52 lines</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HTMX Implementation -->
+    <div class="comparison-side">
+      <h4>
+        HTMX
+        <span class="tech-badge htmx">HTMX</span>
+      </h4>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#htmx-interface" type="button">
+            Interface
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#htmx-code" type="button">
+            Code
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- HTMX Interface Tab -->
+        <div class="tab-pane fade show active" id="htmx-interface">
+          <div class="form-group mt-3">
+            <label for="htmx-search">Search Contacts</label>
+            <input type="text" 
+                   class="form-control" 
+                   id="htmx-search"
+                   name="q"
+                   hx-get="{% url 'examples:contact_search_htmx' %}"
+                   hx-trigger="keyup changed delay:300ms"
+                   hx-target="#htmx-search-results"
+                   hx-indicator="#htmx-search-indicator"
+                   placeholder="Type to search...">
+            <span class="htmx-indicator spinner" id="htmx-search-indicator" style="margin-top: 0.5rem;"></span>
+          </div>
+          <div id="htmx-search-results"></div>
+        </div>
+
+        <!-- HTMX Code Tab -->
+        <div class="tab-pane fade" id="htmx-code">
+          <div class="code-tab">
+            <div class="code-section">
+              <h6>HTML Template (with HTMX attributes)</h6>
+              <pre><code class="language-markup">&lt;div class="form-group"&gt;
+  &lt;label&gt;Search Contacts&lt;/label&gt;
+  &lt;input type="text" 
+         class="form-control"
+         name="q"
+         hx-get="{% templatetag openblock %} url 'examples:contact_search_htmx' {% templatetag closeblock %}"
+         hx-trigger="keyup changed delay:300ms"
+         hx-target="#htmx-search-results"
+         hx-indicator="#htmx-search-indicator"
+         placeholder="Type to search..."&gt;
+  &lt;span class="htmx-indicator" id="htmx-search-indicator"&gt;⏳&lt;/span&gt;
+&lt;/div&gt;
+&lt;div id="htmx-search-results"&gt;&lt;/div&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>JavaScript</h6>
+              <pre><code class="language-javascript">// No JavaScript needed!
+// HTMX handles everything:
+// - Automatic debouncing with delay:300ms
+// - The "changed" modifier prevents duplicate requests
+// - Loading indicator shows/hides automatically
+// - Results update automatically</code></pre>
+            </div>
+
+            <div class="code-section">
+              <h6>Django View (Python)</h6>
+              <pre><code class="language-python">def contact_search_htmx(request):
+    query = request.GET.get("q", "").strip()
+    
+    if not query:
+        contacts = Contact.objects.all()[:20]
+    else:
+        contacts = Contact.objects.filter(
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(email__icontains=query) |
+            Q(company__icontains=query)
+        )[:20]
+    
+    # Return HTML fragment
+    return render(
+        request,
+        "examples/partials/contact_results.html",
+        {"contacts": contacts, "query": query},
+    )</code></pre>
+            </div>
+
+            <div class="alert alert-success">
+              <strong>Total Lines:</strong> ~15 lines (HTML) + 0 lines (JS) = <strong>~15 lines</strong>
+              <br><strong>Reduction:</strong> 70% less code!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-info mt-3">
+    <strong>Key Differences:</strong>
+    <ul class="mb-0">
+      <li><strong>jQuery:</strong> Manual event handlers with debouncing logic, AJAX calls, and result rendering (~52 lines total)</li>
+      <li><strong>HTMX:</strong> Built-in debouncing with <code>delay:300ms</code>, automatic request handling (~15 lines total)</li>
+      <li><strong>JavaScript:</strong> jQuery needs ~40 lines with setTimeout logic; HTMX needs 0 lines</li>
+      <li><strong>Server Response:</strong> jQuery returns JSON; HTMX returns HTML</li>
+    </ul>
+  </div>
+
+  <div class="mt-4">
+    <nav aria-label="Pattern navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison_form_submissions' %}">Previous: Form Submissions</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison' %}">All Patterns</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="{% url 'examples:comparison_infinite_scroll' %}">Next: Infinite Scroll</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+{% endblock %}
+
+{% block inline_javascript %}
+  <!-- Prism.js for syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+
+  <script>
+    // jQuery: Live Search
+    let searchTimeout;
+    $('#jquery-search').on('keyup', function() {
+      clearTimeout(searchTimeout);
+      const query = $(this).val();
+      
+      $('#jquery-search-spinner').show();
+      
+      searchTimeout = setTimeout(function() {
+        $.ajax({
+          url: '{% url "examples:contact_search_ajax" %}',
+          data: { q: query },
+          success: function(response) {
+            $('#jquery-search-spinner').hide();
+            let html = '';
+            if (response.results.length === 0) {
+              html = '<p class="text-muted">No contacts found</p>';
+            } else {
+              response.results.forEach(function(contact) {
+                html += '<div class="contact-item">' +
+                  '<strong>' + contact.first_name + ' ' + contact.last_name + '</strong><br>' +
+                  contact.email + (contact.company ? ' - ' + contact.company : '') +
+                  '</div>';
+              });
+            }
+            $('#jquery-search-results').html(html);
+          }
+        });
+      }, 300);
+    });
+  </script>
+{% endblock %}
