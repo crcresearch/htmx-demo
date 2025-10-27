@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ exercise.title }} - HTMX Exercise{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'exercises:index' %}">Exercises</a></li>
+            <li class="breadcrumb-item active">{{ exercise.title }}</li>
+        </ol>
+    </nav>
+
+    <!-- Exercise Header -->
+    <div class="mb-4">
+        <h1 class="display-5 mb-3">{{ exercise.title }}</h1>
+        <div class="mb-3">
+            {% if exercise.difficulty == "Beginner" %}
+                <span class="badge bg-success fs-6">{{ exercise.difficulty }}</span>
+            {% elif exercise.difficulty == "Intermediate" %}
+                <span class="badge bg-warning fs-6">{{ exercise.difficulty }}</span>
+            {% else %}
+                <span class="badge bg-danger fs-6">{{ exercise.difficulty }}</span>
+            {% endif %}
+            <span class="badge bg-secondary fs-6">{{ exercise.category }}</span>
+        </div>
+        <p class="lead">{{ exercise.description }}</p>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- What You'll Build -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">🎯 What You'll Build</h4>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ exercise.what_youll_build }}</p>
+                </div>
+            </div>
+
+            <!-- HTMX Patterns -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">⚡ HTMX Patterns You'll Use</h4>
+                </div>
+                <div class="card-body">
+                    {% for pattern in exercise.patterns %}
+                    <span class="badge bg-info text-dark fs-6 me-2 mb-2">{{ pattern }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Requirements -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">✅ Requirements Checklist</h4>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for requirement in exercise.requirements %}
+                        <div class="list-group-item">
+                            <input type="checkbox" class="form-check-input me-2" id="req-{{ forloop.counter }}">
+                            <label class="form-check-label" for="req-{{ forloop.counter }}">
+                                {{ requirement }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Starter Template -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">🚀 Starter Template</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Copy this starter code to begin building. Add your HTMX attributes and backend logic!
+                    </p>
+                    
+                    <!-- Code Block with Copy Button -->
+                    <div class="position-relative">
+                        <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2" 
+                                onclick="copyCode()"
+                                id="copy-btn">
+                            📋 Copy
+                        </button>
+                        <pre class="bg-light p-3 rounded"><code id="starter-code">{{ exercise.starter_html }}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Hints -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">💡 Hints</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">Stuck? Here are some hints to guide you:</p>
+                    <div class="accordion" id="hintsAccordion">
+                        {% for hint in exercise.hints %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="hint-heading-{{ forloop.counter }}">
+                                <button class="accordion-button collapsed" type="button" 
+                                        data-bs-toggle="collapse" 
+                                        data-bs-target="#hint-{{ forloop.counter }}">
+                                    Hint #{{ forloop.counter }}
+                                </button>
+                            </h2>
+                            <div id="hint-{{ forloop.counter }}" 
+                                 class="accordion-collapse collapse" 
+                                 data-bs-parent="#hintsAccordion">
+                                <div class="accordion-body small">
+                                    {{ hint }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Where to Build -->
+            <div class="card mb-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">🏗️ Where to Build</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small mb-0">{{ exercise.where_to_build }}</p>
+                </div>
+            </div>
+
+            <!-- Resources -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📚 Resources</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <a href="https://htmx.org/docs/" target="_blank" class="text-decoration-none">
+                                📖 HTMX Documentation
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="https://htmx.org/examples/" target="_blank" class="text-decoration-none">
+                                🎨 HTMX Examples
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'examples:index' %}" class="text-decoration-none">
+                                💻 Our Examples Section
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Link -->
+    <div class="mt-4">
+        <a href="{% url 'exercises:index' %}" class="btn btn-outline-secondary">
+            ← Back to All Exercises
+        </a>
+    </div>
+</div>
+
+<script>
+function copyCode() {
+    const code = document.getElementById('starter-code').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copy-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '✅ Copied!';
+        btn.classList.add('btn-success');
+        btn.classList.remove('btn-outline-secondary');
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-secondary');
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}
+

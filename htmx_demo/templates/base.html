@@ -65,53 +65,42 @@
 </head>
 <body class="{% block bodyclass %}{% endblock bodyclass %}">
   {% block body %}
-  <div class="mb-1">
-    <nav class="navbar navbar-expand-md navbar-light bg-light">
-      <div class="container-fluid">
-        <button class="navbar-toggler navbar-toggler-right"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <a class="navbar-brand" href="{% url 'home' %}">HTMX Demo</a>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="{% url 'home' %}">Home <span class="visually-hidden">(current)</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'about' %}">About</a>
-            </li>
-            {% if request.user.is_authenticated %}
-              <li class="nav-item">
-                <a class="nav-link"
-                   href="{% url 'users:detail' request.user.username %}">{% translate "My Profile" %}</a>
-              </li>
-              <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-                <a class="nav-link" href="{% url 'account_logout' %}">{% translate "Sign Out" %}</a>
-              </li>
-            {% else %}
-              {% if ACCOUNT_ALLOW_REGISTRATION %}
-                <li class="nav-item">
-                  {# URL provided by django-allauth/account/urls.py #}
-                  <a id="sign-up-link" class="nav-link" href="{% url 'account_signup' %}">{% translate "Sign Up" %}</a>
-                </li>
-              {% endif %}
-              <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-                <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% translate "Sign In" %}</a>
-              </li>
-            {% endif %}
-          </ul>
-        </div>
+  <nav class="navbar navbar-expand-md navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{% url 'home' %}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+        HTMX Training Hub
+      </a>
+      <button class="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent"
+              aria-expanded="false"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'examples:index' %}">Examples</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'examples:comparison' %}">Side-by-Side</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'examples:htmx_deep_dive' %}">Deep Dive</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'exercises:index' %}">Exercises</a>
+          </li>
+        </ul>
       </div>
-    </nav>
-  </div>
+    </div>
+  </nav>
   <div class="container">
     {% if messages %}
       {% for message in messages %}
@@ -131,6 +120,38 @@
     {% endblock main %}
 
   </div>
+  
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h5 style="color: white; font-size: 1.125rem; margin-bottom: 1rem;">HTMX Training Hub</h5>
+          <p style="font-size: 0.875rem;">
+            An interactive training platform for learning HTMX and migrating from jQuery/AJAX.
+          </p>
+        </div>
+        <div class="col-md-3">
+          <h6 style="color: white; font-size: 1rem; margin-bottom: 0.75rem;">Resources</h6>
+          <ul style="list-style: none; padding: 0; font-size: 0.875rem;">
+            <li style="margin-bottom: 0.5rem;"><a href="https://htmx.org" target="_blank" rel="noopener">HTMX Documentation</a></li>
+            <li style="margin-bottom: 0.5rem;"><a href="https://htmx.org/examples/" target="_blank" rel="noopener">HTMX Examples</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <h6 style="color: white; font-size: 1rem; margin-bottom: 0.75rem;">Training Paths</h6>
+          <ul style="list-style: none; padding: 0; font-size: 0.875rem;">
+            <li style="margin-bottom: 0.5rem;"><a href="{% url 'examples:comparison' %}">Comparisons</a></li>
+            <li style="margin-bottom: 0.5rem;"><a href="{% url 'examples:htmx_deep_dive' %}">Deep Dive</a></li>
+            <li style="margin-bottom: 0.5rem;"><a href="{% url 'exercises:index' %}">Exercises</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr style="border-color: rgba(255, 255, 255, 0.2); margin: 1.5rem 0;">
+      <div class="text-center" style="font-size: 0.875rem;">
+        <p style="margin: 0;">&copy; 2025 HTMX Training Hub. Built for Research Software Engineers.</p>
+      </div>
+    </div>
+  </footer>
   {% endblock body %}
   <!-- /container -->
   {% block modal %}

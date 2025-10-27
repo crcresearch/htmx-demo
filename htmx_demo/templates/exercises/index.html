@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}HTMX Exercises - Hands-On Learning{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section text-center mb-5">
+    <div class="container">
+        <h1 class="fade-in-up" style="font-size: 3rem;">🎯 HTMX Exercises</h1>
+        <p class="lead fade-in-up" style="animation-delay: 0.1s; color: rgba(255, 255, 255, 0.95);">
+            Hands-on challenges to master HTMX patterns through building real-world features
+        </p>
+        <div class="mt-4 fade-in-up" style="animation-delay: 0.2s;">
+            <span class="badge" style="background: rgba(255, 255, 255, 0.2); color: white; padding: 0.5rem 1rem; margin: 0.25rem; font-size: 1rem;">{{ total_count }} Fun Exercises</span>
+            <span class="badge" style="background: rgba(255, 255, 255, 0.2); color: white; padding: 0.5rem 1rem; margin: 0.25rem; font-size: 1rem;">Real-World Projects</span>
+            <span class="badge" style="background: rgba(255, 255, 255, 0.2); color: white; padding: 0.5rem 1rem; margin: 0.25rem; font-size: 1rem;">No Tracking, Just Learning</span>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- Exercises by Difficulty -->
+    {% for difficulty, exercises in exercises_by_difficulty.items %}
+        {% if exercises %}
+        <div class="mb-5">
+            <div style="display: flex; align-items: center; margin-bottom: 2rem;">
+                {% if difficulty == "Beginner" %}
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                        <span style="font-size: 1.5rem;">🌱</span>
+                    </div>
+                    <div>
+                        <h2 style="margin: 0; font-size: 1.75rem;">{{ difficulty }}</h2>
+                        <p style="margin: 0; color: #64748b;">Start Your HTMX Journey</p>
+                    </div>
+                {% elif difficulty == "Intermediate" %}
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                        <span style="font-size: 1.5rem;">🚀</span>
+                    </div>
+                    <div>
+                        <h2 style="margin: 0; font-size: 1.75rem;">{{ difficulty }}</h2>
+                        <p style="margin: 0; color: #64748b;">Level Up Your Skills</p>
+                    </div>
+                {% else %}
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                        <span style="font-size: 1.5rem;">🏆</span>
+                    </div>
+                    <div>
+                        <h2 style="margin: 0; font-size: 1.75rem;">{{ difficulty }}</h2>
+                        <p style="margin: 0; color: #64748b;">Master Level Challenges</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for exercise in exercises %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title" style="font-size: 1.5rem; margin-bottom: 0.75rem;">
+                                {{ exercise.title }}
+                            </h3>
+                            
+                            <div style="display: inline-block; padding: 0.25rem 0.75rem; background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 0.375rem; margin-bottom: 1rem;">
+                                <strong style="color: #475569; font-size: 0.875rem;">{{ exercise.category }}</strong>
+                            </div>
+                            
+                            <p class="card-text" style="margin-bottom: 1.25rem;">
+                                {{ exercise.description }}
+                            </p>
+                            
+                            <div class="mb-3">
+                                <small style="color: #64748b; font-weight: 600;">HTMX Patterns:</small>
+                                <div class="mt-2">
+                                    {% for pattern in exercise.patterns %}
+                                    <span class="badge" style="background-color: #dbeafe; color: #1e40af; margin: 0.25rem; padding: 0.375rem 0.75rem;">{{ pattern }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <a href="{% url 'exercises:detail' exercise.slug %}" 
+                               class="btn btn-primary w-100">
+                                Start Exercise →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Call to Action -->
+    <div class="card" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: none; margin-top: 3rem;">
+        <div class="card-body" style="padding: 2rem;">
+            <div style="display: flex; align-items: start;">
+                <div style="font-size: 2rem; margin-right: 1rem;">💡</div>
+                <div>
+                    <h4 style="color: #1e40af; margin-bottom: 1rem; font-weight: 700;">How to Use These Exercises</h4>
+                    <p style="color: #1e40af; margin: 0; line-height: 1.6;">
+                        Each exercise provides a prompt, requirements, starter template, and hints. 
+                        Build these features in your existing codebase or create a practice app. 
+                        No answers provided - the goal is hands-on learning and experimentation!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

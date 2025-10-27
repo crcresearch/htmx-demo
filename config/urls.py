@@ -21,6 +21,7 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
     path("examples/", include("htmx_demo.examples.urls", namespace="examples")),
+    path("exercises/", include("htmx_demo.exercises.urls", namespace="exercises")),
     # ...
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
