@@ -32,8 +32,6 @@ This project provides side-by-side comparisons of jQuery/AJAX and HTMX implement
 
 ## Quick Start
 
-### Option 1: Docker (Recommended for Production-like Setup)
-
 1. **Build the Docker images:**
    ```bash
    docker compose -f docker-compose.local.yml build
@@ -58,44 +56,6 @@ This project provides side-by-side comparisons of jQuery/AJAX and HTMX implement
 4. **Create a superuser (optional):**
    ```bash
    docker compose -f docker-compose.local.yml run --rm django python manage.py createsuperuser
-   ```
-
-### Option 2: Local Development (Faster for Development)
-
-1. **Install uv (if not already installed):**
-   ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   uv sync
-   ```
-
-3. **Set up environment variables:**
-   ```bash
-   export DATABASE_URL="sqlite:///db.sqlite3"
-   export DJANGO_DEBUG=True
-   export DJANGO_SECRET_KEY="your-secret-key-here"
-   ```
-
-4. **Run migrations:**
-   ```bash
-   uv run python manage.py migrate
-   ```
-
-5. **Load sample data:**
-   ```bash
-   # Option A: Load curated fixture (recommended for demos)
-   uv run python manage.py loaddata sample_data
-   
-   # Option B: Generate random data (larger dataset)
-   uv run python manage.py create_sample_data
-   ```
-
-6. **Run the development server:**
-   ```bash
-   uv run python manage.py runserver
    ```
 
 Your application will be running at http://localhost:8000
