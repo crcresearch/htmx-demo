@@ -13,9 +13,10 @@ This project provides side-by-side comparisons of jQuery/AJAX and HTMX implement
 
 ### What's Included
 
-- **8 Interactive Patterns**: Form submissions, live search, infinite scroll, modals, dynamic lists, dependent dropdowns, polling, and interactive maps
+- **9 Interactive Patterns**: Form submissions, live search, infinite scroll, modals, dynamic lists, dependent dropdowns, polling, interactive maps, and WebSocket notifications
 - **Side-by-Side Comparisons**: See jQuery and HTMX implementations together
 - **HTMX Deep Dive**: Detailed explanations and best practices
+- **Hands-On Exercises**: Practice building real-world features with guided challenges
 - **Comprehensive Documentation**: Guides covering concepts, comparisons, and common pitfalls
 - **Sample Data**: Pre-populated examples ready to explore
 
@@ -29,6 +30,17 @@ This project provides side-by-side comparisons of jQuery/AJAX and HTMX implement
 6. **Dependent Dropdowns** - Country → State → City cascading selects
 7. **Polling/Auto-refresh** - Live status dashboard with automatic updates
 8. **Interactive Maps (Leaflet)** - Filterable location markers with free OpenStreetMap tiles (no API token required)
+9. **WebSocket/Real-time Notifications** - Live notifications using WebSockets with HTMX extensions
+
+### Hands-On Exercises
+
+In addition to the interactive examples, the project includes practical exercises organized by difficulty level:
+
+- **Beginner Exercises**: Start your HTMX journey with foundational patterns
+- **Intermediate Exercises**: Level up with more complex real-world scenarios
+- **Advanced Exercises**: Master advanced techniques and complex integrations
+
+Each exercise provides a prompt, requirements, starter templates, and hints to help you build features hands-on. No answers provided - the goal is learning through experimentation!
 
 ## Quick Start
 
@@ -53,7 +65,7 @@ This project provides side-by-side comparisons of jQuery/AJAX and HTMX implement
    docker compose -f docker-compose.local.yml run --rm django python manage.py create_sample_data
    ```
 
-4. **Create a superuser (optional):**
+4. **Create a superuser (optional - not requied):**
    ```bash
    docker compose -f docker-compose.local.yml run --rm django python manage.py createsuperuser
    ```
@@ -68,6 +80,7 @@ Once the server is running, visit:
 - **http://localhost:8000/examples/** - Examples landing page
 - **http://localhost:8000/examples/comparison/** - Side-by-side jQuery vs HTMX comparisons
 - **http://localhost:8000/examples/htmx-deep-dive/** - HTMX-focused deep dive with explanations
+- **http://localhost:8000/exercises/** - Hands-on exercises for practice
 
 ## Documentation
 
@@ -102,15 +115,20 @@ htmx-demo/
 │   │   ├── views.py        # jQuery and HTMX view implementations
 │   │   ├── urls.py         # URL routing
 │   │   └── README.md       # Detailed examples documentation
+│   ├── exercises/          # Hands-on practice exercises
+│   │   ├── views.py        # Exercise content and routing
+│   │   └── README.md       # Exercise documentation
 │   ├── static/
 │   │   └── css/
+│   │       ├── project.css   # Global styling
 │   │       └── examples.css  # Styling for examples
 │   └── templates/
-│       └── examples/       # All example templates
-│           ├── index.html
-│           ├── comparison.html
-│           ├── htmx_deep_dive.html
-│           └── partials/   # HTML fragments for HTMX
+│       ├── examples/       # All example templates
+│       │   ├── index.html
+│       │   ├── comparison.html
+│       │   ├── htmx_deep_dive.html
+│       │   └── partials/   # HTML fragments for HTMX
+│       └── exercises/      # Exercise templates
 └── README.md               # This file
 ```
 
@@ -122,16 +140,18 @@ htmx-demo/
 2. Open browser DevTools to demonstrate request/response differences
 3. Walk through the **code** to explain the patterns
 4. Use the **deep dive page** for detailed explanations
-5. Reference the **documentation** for comprehensive coverage
+5. Assign **exercises** for hands-on practice
+6. Reference the **documentation** for comprehensive coverage
 
 ### For Learners
 
-1. **Explore** the interactive examples
+1. **Explore** the interactive examples to see patterns in action
 2. **View page source** to see HTMX attributes in action
 3. **Open DevTools Network tab** to observe requests
 4. **Read the documentation** to understand concepts
-5. **Experiment** with modifications
-6. **Apply** patterns to your own projects
+5. **Complete exercises** to build real-world features
+6. **Experiment** with modifications
+7. **Apply** patterns to your own projects
 
 ## Development
 
