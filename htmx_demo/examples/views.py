@@ -16,6 +16,7 @@ from django.views.decorators.http import require_http_methods
 from .models import City
 from .models import Contact
 from .models import Country
+from .models import Location
 from .models import Product
 from .models import State
 from .models import SystemStatus
@@ -83,6 +84,11 @@ def comparison_dependent_dropdowns(request):
 def comparison_polling(request):
     """Polling/auto-refresh comparison page."""
     return render(request, "examples/patterns/comparison_polling.html")
+
+
+def comparison_mapbox(request):
+    """Leaflet interactive map comparison page."""
+    return render(request, "examples/patterns/comparison_mapbox.html")
 
 
 def htmx_deep_dive(request):
@@ -595,5 +601,69 @@ def system_status_htmx(request):
         request,
         "examples/partials/system_status.html",
         {"statuses": statuses},
+    )
+
+
+# Pattern 8: Interactive Maps (jQuery endpoints)
+# ============================================================================
+
+def locations_search_ajax(request):
+    """jQuery AJAX endpoint for location search with filters."""
+    category = request.GET.get("category", "")
+    min_rating = request.GET.get("min_rating", "")
+    price_range = request.GET.get("price_range", "")
+
+    locations = Location.objects.all()
+
+    if category:
+        locations = locations.filter(category=category)
+    if min_rating:
+        locations = locations.filter(rating__gte=float(min_rating))
+    if price_range:
+        locations = locations.filter(price_range=price_range)
+
+    data = {
+        "locations": [
+            {
+                "id": loc.id,
+                "name": loc.name,
+                "address": loc.address,
+                "latitude": float(loc.latitude),
+                "longitude": float(loc.longitude),
+                "category": loc.category,
+                "description": loc.description,
+                "rating": float(loc.rating),
+                "price_range": loc.price_range,
+            }
+            for loc in locations
+        ],
+        "count": locations.count(),
+    }
+
+    return JsonResponse(data)
+
+
+# Pattern 8: Interactive Maps (HTMX endpoints)
+# ============================================================================
+
+def locations_search_htmx(request):
+    """HTMX endpoint for location search with filters."""
+    category = request.GET.get("category", "")
+    min_rating = request.GET.get("min_rating", "")
+    price_range = request.GET.get("price_range", "")
+
+    locations = Location.objects.all()
+
+    if category:
+        locations = locations.filter(category=category)
+    if min_rating:
+        locations = locations.filter(rating__gte=float(min_rating))
+    if price_range:
+        locations = locations.filter(price_range=price_range)
+
+    return render(
+        request,
+        "examples/partials/location_markers.html",
+        {"locations": locations},
     )
 

@@ -5,6 +5,7 @@ from django.contrib import admin
 from .models import City
 from .models import Contact
 from .models import Country
+from .models import Location
 from .models import Product
 from .models import State
 from .models import SystemStatus
@@ -57,4 +58,11 @@ class SystemStatusAdmin(admin.ModelAdmin):
     list_display = ("service_name", "status", "response_time_ms", "uptime_percentage", "last_check")
     list_filter = ("status",)
     search_fields = ("service_name",)
+
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ("name", "category", "rating", "price_range", "latitude", "longitude")
+    search_fields = ("name", "address", "description")
+    list_filter = ("category", "rating", "price_range")
 

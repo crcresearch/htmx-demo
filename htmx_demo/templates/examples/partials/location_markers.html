@@ -1,0 +1,14 @@
+{% for location in locations %}
+<div class="location-data" 
+     data-id="{{ location.id }}"
+     data-lat="{{ location.latitude }}"
+     data-lng="{{ location.longitude }}"
+     data-name="{{ location.name }}"
+     data-address="{{ location.address }}"
+     data-category="{{ location.category }}"
+     data-rating="{{ location.rating }}"
+     data-price="{{ location.price_range }}"
+     data-description="{{ location.description }}">
+</div>
+{% endfor %}
+

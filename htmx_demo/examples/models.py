@@ -138,3 +138,43 @@ class SystemStatus(models.Model):
     def __str__(self):
         return f"{self.service_name}: {self.status}"
 
+
+class Location(models.Model):
+    """Location model for Leaflet interactive map example."""
+
+    name = models.CharField(max_length=200)
+    address = models.CharField(max_length=300, blank=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    category = models.CharField(
+        max_length=50,
+        choices=[
+            ("restaurant", "Restaurant"),
+            ("hotel", "Hotel"),
+            ("museum", "Museum"),
+            ("park", "Park"),
+            ("shopping", "Shopping"),
+            ("office", "Office"),
+        ],
+        default="restaurant",
+    )
+    description = models.TextField(blank=True)
+    rating = models.DecimalField(max_digits=2, decimal_places=1, default=0.0)
+    price_range = models.CharField(
+        max_length=4,
+        choices=[
+            ("$", "Budget"),
+            ("$$", "Moderate"),
+            ("$$$", "Expensive"),
+            ("$$$$", "Very Expensive"),
+        ],
+        default="$$",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return f"{self.name} ({self.category})"
+

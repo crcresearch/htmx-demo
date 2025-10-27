@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand
 from htmx_demo.examples.models import City
 from htmx_demo.examples.models import Contact
 from htmx_demo.examples.models import Country
+from htmx_demo.examples.models import Location
 from htmx_demo.examples.models import Product
 from htmx_demo.examples.models import State
 from htmx_demo.examples.models import SystemStatus
@@ -28,6 +29,7 @@ class Command(BaseCommand):
         State.objects.all().delete()
         Country.objects.all().delete()
         SystemStatus.objects.all().delete()
+        Location.objects.all().delete()
 
         # Create Contacts
         self.stdout.write("Creating contacts...")
@@ -288,11 +290,202 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f"Created {SystemStatus.objects.count()} system statuses"))
 
+        # Create Locations (San Francisco area)
+        self.stdout.write("Creating locations...")
+        locations_data = [
+            {
+                "name": "Blue Bottle Coffee",
+                "address": "66 Mint St, San Francisco, CA 94103",
+                "latitude": Decimal("37.7814"),
+                "longitude": Decimal("-122.4078"),
+                "category": "restaurant",
+                "description": "Artisanal coffee roaster and cafe",
+                "rating": Decimal("4.5"),
+                "price_range": "$$",
+            },
+            {
+                "name": "Golden Gate Bridge Welcome Center",
+                "address": "Golden Gate Bridge, San Francisco, CA 94129",
+                "latitude": Decimal("37.8199"),
+                "longitude": Decimal("-122.4783"),
+                "category": "park",
+                "description": "Iconic suspension bridge and landmark",
+                "rating": Decimal("5.0"),
+                "price_range": "$",
+            },
+            {
+                "name": "Exploratorium",
+                "address": "Pier 15, San Francisco, CA 94111",
+                "latitude": Decimal("37.8012"),
+                "longitude": Decimal("-122.3978"),
+                "category": "museum",
+                "description": "Interactive science museum",
+                "rating": Decimal("4.7"),
+                "price_range": "$$",
+            },
+            {
+                "name": "Ferry Building Marketplace",
+                "address": "1 Ferry Building, San Francisco, CA 94111",
+                "latitude": Decimal("37.7956"),
+                "longitude": Decimal("-122.3933"),
+                "category": "shopping",
+                "description": "Historic marketplace with local vendors",
+                "rating": Decimal("4.6"),
+                "price_range": "$$",
+            },
+            {
+                "name": "Palace Hotel",
+                "address": "2 New Montgomery St, San Francisco, CA 94105",
+                "latitude": Decimal("37.7881"),
+                "longitude": Decimal("-122.4012"),
+                "category": "hotel",
+                "description": "Luxury historic hotel in downtown",
+                "rating": Decimal("4.4"),
+                "price_range": "$$$$",
+            },
+            {
+                "name": "Tartine Bakery",
+                "address": "600 Guerrero St, San Francisco, CA 94110",
+                "latitude": Decimal("37.7617"),
+                "longitude": Decimal("-122.4241"),
+                "category": "restaurant",
+                "description": "Famous artisan bakery and cafe",
+                "rating": Decimal("4.6"),
+                "price_range": "$$",
+            },
+            {
+                "name": "Salesforce Tower",
+                "address": "415 Mission St, San Francisco, CA 94105",
+                "latitude": Decimal("37.7897"),
+                "longitude": Decimal("-122.3968"),
+                "category": "office",
+                "description": "Tallest building in San Francisco",
+                "rating": Decimal("4.3"),
+                "price_range": "$$$",
+            },
+            {
+                "name": "San Francisco Museum of Modern Art",
+                "address": "151 3rd St, San Francisco, CA 94103",
+                "latitude": Decimal("37.7857"),
+                "longitude": Decimal("-122.4011"),
+                "category": "museum",
+                "description": "Contemporary and modern art museum",
+                "rating": Decimal("4.6"),
+                "price_range": "$$$",
+            },
+            {
+                "name": "Fisherman's Wharf",
+                "address": "Fisherman's Wharf, San Francisco, CA 94133",
+                "latitude": Decimal("37.8080"),
+                "longitude": Decimal("-122.4177"),
+                "category": "shopping",
+                "description": "Waterfront area with shops and restaurants",
+                "rating": Decimal("4.2"),
+                "price_range": "$$",
+            },
+            {
+                "name": "Alamo Square Park",
+                "address": "Hayes St & Steiner St, San Francisco, CA 94117",
+                "latitude": Decimal("37.7766"),
+                "longitude": Decimal("-122.4340"),
+                "category": "park",
+                "description": "Park with famous Painted Ladies view",
+                "rating": Decimal("4.7"),
+                "price_range": "$",
+            },
+            {
+                "name": "Foreign Cinema",
+                "address": "2534 Mission St, San Francisco, CA 94110",
+                "latitude": Decimal("37.7565"),
+                "longitude": Decimal("-122.4188"),
+                "category": "restaurant",
+                "description": "Upscale restaurant with outdoor films",
+                "rating": Decimal("4.5"),
+                "price_range": "$$$",
+            },
+            {
+                "name": "The St. Regis San Francisco",
+                "address": "125 3rd St, San Francisco, CA 94103",
+                "latitude": Decimal("37.7856"),
+                "longitude": Decimal("-122.4006"),
+                "category": "hotel",
+                "description": "Five-star luxury hotel",
+                "rating": Decimal("4.6"),
+                "price_range": "$$$$",
+            },
+            {
+                "name": "Dolores Park",
+                "address": "Mission Dolores Park, San Francisco, CA 94114",
+                "latitude": Decimal("37.7596"),
+                "longitude": Decimal("-122.4269"),
+                "category": "park",
+                "description": "Popular urban park with city views",
+                "rating": Decimal("4.7"),
+                "price_range": "$",
+            },
+            {
+                "name": "Union Square",
+                "address": "333 Post St, San Francisco, CA 94108",
+                "latitude": Decimal("37.7880"),
+                "longitude": Decimal("-122.4074"),
+                "category": "shopping",
+                "description": "Major shopping district in downtown",
+                "rating": Decimal("4.4"),
+                "price_range": "$$$",
+            },
+            {
+                "name": "Zuni Café",
+                "address": "1658 Market St, San Francisco, CA 94102",
+                "latitude": Decimal("37.7721"),
+                "longitude": Decimal("-122.4205"),
+                "category": "restaurant",
+                "description": "Iconic California-Mediterranean restaurant",
+                "rating": Decimal("4.4"),
+                "price_range": "$$$",
+            },
+            {
+                "name": "Cable Car Museum",
+                "address": "1201 Mason St, San Francisco, CA 94108",
+                "latitude": Decimal("37.7946"),
+                "longitude": Decimal("-122.4113"),
+                "category": "museum",
+                "description": "Museum about SF's cable car system",
+                "rating": Decimal("4.5"),
+                "price_range": "$",
+            },
+            {
+                "name": "Pier 39",
+                "address": "Beach St & The Embarcadero, San Francisco, CA 94133",
+                "latitude": Decimal("37.8087"),
+                "longitude": Decimal("-122.4098"),
+                "category": "shopping",
+                "description": "Tourist attraction with shops and sea lions",
+                "rating": Decimal("4.3"),
+                "price_range": "$$",
+            },
+            {
+                "name": "The Dorian",
+                "address": "2001 Chestnut St, San Francisco, CA 94123",
+                "latitude": Decimal("37.8003"),
+                "longitude": Decimal("-122.4346"),
+                "category": "restaurant",
+                "description": "Modern American restaurant in Marina",
+                "rating": Decimal("4.3"),
+                "price_range": "$$",
+            },
+        ]
+
+        for location_data in locations_data:
+            Location.objects.create(**location_data)
+
+        self.stdout.write(self.style.SUCCESS(f"Created {Location.objects.count()} locations"))
+
         self.stdout.write(self.style.SUCCESS("\n✅ Sample data created successfully!"))
         self.stdout.write(
             "\nYou can now visit:\n"
             "  - http://localhost:8000/examples/ (landing page)\n"
             "  - http://localhost:8000/examples/comparison/ (side-by-side comparison)\n"
+            "  - http://localhost:8000/examples/comparison/mapbox/ (Leaflet map example)\n"
             "  - http://localhost:8000/examples/htmx-deep-dive/ (HTMX deep dive)\n"
         )
 

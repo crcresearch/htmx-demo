@@ -13,7 +13,7 @@ This project provides side-by-side comparisons of jQuery/AJAX and HTMX implement
 
 ### What's Included
 
-- **7 Interactive Patterns**: Form submissions, live search, infinite scroll, modals, dynamic lists, dependent dropdowns, and polling
+- **8 Interactive Patterns**: Form submissions, live search, infinite scroll, modals, dynamic lists, dependent dropdowns, polling, and interactive maps
 - **Side-by-Side Comparisons**: See jQuery and HTMX implementations together
 - **HTMX Deep Dive**: Detailed explanations and best practices
 - **Comprehensive Documentation**: Guides covering concepts, comparisons, and common pitfalls
@@ -28,6 +28,7 @@ This project provides side-by-side comparisons of jQuery/AJAX and HTMX implement
 5. **Dynamic List Operations** - Todo list with add/remove/toggle functionality
 6. **Dependent Dropdowns** - Country → State → City cascading selects
 7. **Polling/Auto-refresh** - Live status dashboard with automatic updates
+8. **Interactive Maps (Leaflet)** - Filterable location markers with free OpenStreetMap tiles (no API token required)
 
 ## Quick Start
 

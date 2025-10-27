@@ -17,6 +17,7 @@ urlpatterns = [
     path("comparison/dynamic-lists/", views.comparison_dynamic_lists, name="comparison_dynamic_lists"),
     path("comparison/dependent-dropdowns/", views.comparison_dependent_dropdowns, name="comparison_dependent_dropdowns"),
     path("comparison/polling/", views.comparison_polling, name="comparison_polling"),
+    path("comparison/mapbox/", views.comparison_mapbox, name="comparison_mapbox"),
     path("htmx-deep-dive/", views.htmx_deep_dive, name="htmx_deep_dive"),
     # Pattern 1: Form Submissions
     path("api/contact/submit/", views.contact_submit_ajax, name="contact_submit_ajax"),
@@ -45,5 +46,8 @@ urlpatterns = [
     # Pattern 7: Polling/Auto-refresh
     path("api/system-status/", views.system_status_ajax, name="system_status_ajax"),
     path("htmx/system-status/", views.system_status_htmx, name="system_status_htmx"),
+    # Pattern 8: Interactive Maps
+    path("api/locations/search/", views.locations_search_ajax, name="locations_search_ajax"),
+    path("htmx/locations/search/", views.locations_search_htmx, name="locations_search_htmx"),
 ]
 
