@@ -1,0 +1,38 @@
+{% if notifications %}
+  {% for notification in notifications %}
+    <div class="alert alert-{{ notification.notification_type }} alert-dismissible fade show notification-item" role="alert" data-notification-id="{{ notification.id }}">
+      <strong>
+        {% if notification.notification_type == 'success' %}
+          ✓
+        {% elif notification.notification_type == 'error' %}
+          ✗
+        {% elif notification.notification_type == 'warning' %}
+          ⚠
+        {% else %}
+          ℹ
+        {% endif %}
+      </strong>
+      {{ notification.message }}
+      <small class="text-muted d-block">{{ notification.created_at|timesince }} ago</small>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+{% elif notification %}
+  <div class="alert alert-{{ notification.notification_type }} alert-dismissible fade show notification-item" role="alert" data-notification-id="{{ notification.id }}">
+    <strong>
+      {% if notification.notification_type == 'success' %}
+        ✓
+      {% elif notification.notification_type == 'error' %}
+        ✗
+      {% elif notification.notification_type == 'warning' %}
+        ⚠
+      {% else %}
+        ℹ
+      {% endif %}
+    </strong>
+    {{ notification.message }}
+    <small class="text-muted d-block">{{ notification.created_at|timesince }} ago</small>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{% endif %}
+

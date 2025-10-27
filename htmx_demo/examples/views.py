@@ -17,6 +17,7 @@ from .models import City
 from .models import Contact
 from .models import Country
 from .models import Location
+from .models import Notification
 from .models import Product
 from .models import State
 from .models import SystemStatus
@@ -89,6 +90,11 @@ def comparison_polling(request):
 def comparison_mapbox(request):
     """Leaflet interactive map comparison page."""
     return render(request, "examples/patterns/comparison_mapbox.html")
+
+
+def comparison_websockets(request):
+    """WebSocket/real-time notifications comparison page."""
+    return render(request, "examples/patterns/comparison_websockets.html")
 
 
 def htmx_deep_dive(request):
@@ -665,5 +671,90 @@ def locations_search_htmx(request):
         request,
         "examples/partials/location_markers.html",
         {"locations": locations},
+    )
+
+
+# Pattern 9: WebSocket/Real-time Notifications (jQuery AJAX endpoints)
+# ============================================================================
+
+@require_http_methods(["POST"])
+def notifications_create_ajax(request):
+    """jQuery AJAX endpoint for creating notifications."""
+    message = request.POST.get("message", "").strip()
+    notification_type = request.POST.get("notification_type", "info")
+
+    if not message:
+        return JsonResponse(
+            {"success": False, "error": "Message is required"},
+            status=400,
+        )
+
+    notification = Notification.objects.create(
+        message=message,
+        notification_type=notification_type,
+    )
+
+    return JsonResponse({
+        "success": True,
+        "notification": {
+            "id": notification.id,
+            "message": notification.message,
+            "notification_type": notification.notification_type,
+            "created_at": notification.created_at.isoformat(),
+        },
+    })
+
+
+def notifications_list_ajax(request):
+    """jQuery AJAX endpoint for getting notification list."""
+    notifications = Notification.objects.all()[:10]
+    return JsonResponse({
+        "notifications": [
+            {
+                "id": n.id,
+                "message": n.message,
+                "notification_type": n.notification_type,
+                "created_at": n.created_at.isoformat(),
+            }
+            for n in notifications
+        ],
+    })
+
+
+# Pattern 9: WebSocket/Real-time Notifications (HTMX endpoints)
+# ============================================================================
+
+@require_http_methods(["POST"])
+def notifications_create_htmx(request):
+    """HTMX endpoint for creating notifications."""
+    message = request.POST.get("message", "").strip()
+    notification_type = request.POST.get("notification_type", "info")
+
+    if not message:
+        return HttpResponse(
+            '<div class="alert alert-danger">Message is required</div>',
+            status=400,
+        )
+
+    notification = Notification.objects.create(
+        message=message,
+        notification_type=notification_type,
+    )
+
+    # Return the notification as HTML for immediate display
+    return render(
+        request,
+        "examples/partials/notification_item.html",
+        {"notification": notification},
+    )
+
+
+def notifications_list_htmx(request):
+    """HTMX endpoint for getting notification list."""
+    notifications = Notification.objects.all()[:10]
+    return render(
+        request,
+        "examples/partials/notification_item.html",
+        {"notifications": notifications},
     )
 

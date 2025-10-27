@@ -8,6 +8,7 @@ from htmx_demo.examples.models import City
 from htmx_demo.examples.models import Contact
 from htmx_demo.examples.models import Country
 from htmx_demo.examples.models import Location
+from htmx_demo.examples.models import Notification
 from htmx_demo.examples.models import Product
 from htmx_demo.examples.models import State
 from htmx_demo.examples.models import SystemStatus
@@ -30,6 +31,7 @@ class Command(BaseCommand):
         Country.objects.all().delete()
         SystemStatus.objects.all().delete()
         Location.objects.all().delete()
+        Notification.objects.all().delete()
 
         # Create Contacts
         self.stdout.write("Creating contacts...")
@@ -480,12 +482,55 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f"Created {Location.objects.count()} locations"))
 
+        # Create Notifications
+        self.stdout.write("Creating notifications...")
+        notifications_data = [
+            {
+                "message": "Your account has been successfully created!",
+                "notification_type": "success",
+            },
+            {
+                "message": "New update available for your application",
+                "notification_type": "info",
+            },
+            {
+                "message": "Server maintenance scheduled for tonight at 11 PM",
+                "notification_type": "warning",
+            },
+            {
+                "message": "Payment processing successful - Order #12345",
+                "notification_type": "success",
+            },
+            {
+                "message": "Your session will expire in 5 minutes",
+                "notification_type": "warning",
+            },
+            {
+                "message": "Failed to connect to external API service",
+                "notification_type": "error",
+            },
+            {
+                "message": "3 new messages received from team members",
+                "notification_type": "info",
+            },
+            {
+                "message": "Database backup completed successfully",
+                "notification_type": "success",
+            },
+        ]
+
+        for notification_data in notifications_data:
+            Notification.objects.create(**notification_data)
+
+        self.stdout.write(self.style.SUCCESS(f"Created {Notification.objects.count()} notifications"))
+
         self.stdout.write(self.style.SUCCESS("\n✅ Sample data created successfully!"))
         self.stdout.write(
             "\nYou can now visit:\n"
             "  - http://localhost:8000/examples/ (landing page)\n"
             "  - http://localhost:8000/examples/comparison/ (side-by-side comparison)\n"
             "  - http://localhost:8000/examples/comparison/mapbox/ (Leaflet map example)\n"
+            "  - http://localhost:8000/examples/comparison/websockets/ (WebSocket notifications)\n"
             "  - http://localhost:8000/examples/htmx-deep-dive/ (HTMX deep dive)\n"
         )
 

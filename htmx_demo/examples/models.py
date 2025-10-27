@@ -178,3 +178,27 @@ class Location(models.Model):
     def __str__(self):
         return f"{self.name} ({self.category})"
 
+
+class Notification(models.Model):
+    """Notification model for WebSocket real-time notifications example."""
+
+    message = models.TextField()
+    notification_type = models.CharField(
+        max_length=20,
+        choices=[
+            ("info", "Info"),
+            ("success", "Success"),
+            ("warning", "Warning"),
+            ("error", "Error"),
+        ],
+        default="info",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.notification_type}: {self.message[:50]}"
+

@@ -6,6 +6,7 @@ from .models import City
 from .models import Contact
 from .models import Country
 from .models import Location
+from .models import Notification
 from .models import Product
 from .models import State
 from .models import SystemStatus
@@ -65,4 +66,12 @@ class LocationAdmin(admin.ModelAdmin):
     list_display = ("name", "category", "rating", "price_range", "latitude", "longitude")
     search_fields = ("name", "address", "description")
     list_filter = ("category", "rating", "price_range")
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ("message", "notification_type", "created_at", "is_read")
+    list_filter = ("notification_type", "is_read", "created_at")
+    search_fields = ("message",)
+    date_hierarchy = "created_at"
 
