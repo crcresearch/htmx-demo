@@ -73,7 +73,7 @@ These files are already in the repository and require no changes for local devel
    docker compose -f docker-compose.local.yml run --rm django python manage.py create_sample_data
    ```
 
-4. **Create a superuser (optional - not requied):**
+4. **Create a superuser (optional - not required):**
    ```bash
    docker compose -f docker-compose.local.yml run --rm django python manage.py createsuperuser
    ```
