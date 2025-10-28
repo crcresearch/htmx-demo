@@ -1,0 +1,12 @@
+# Local Development Django Settings
+# ------------------------------------------------------------------------------
+# These are safe defaults for local development. No secrets here!
+# For production, create .envs/.production/.django with your actual secrets.
+
+# General
+# ------------------------------------------------------------------------------
+USE_DOCKER=yes
+IPYTHONDIR=/app/.ipython
+
+# Django settings module is set in docker-compose.local.yml
+# No SECRET_KEY needed for local development - Django will auto-generate one

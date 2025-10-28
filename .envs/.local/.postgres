@@ -1,0 +1,12 @@
+# Local Development PostgreSQL Settings
+# ------------------------------------------------------------------------------
+# These are safe defaults for local development. No real passwords here!
+# For production, create .envs/.production/.postgres with secure credentials.
+
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=htmx_demo
+POSTGRES_USER=debug
+POSTGRES_PASSWORD=debug

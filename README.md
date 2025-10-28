@@ -44,6 +44,16 @@ Each exercise provides a prompt, requirements, starter templates, and hints to h
 
 ## Quick Start
 
+### Environment Setup
+
+The project includes example environment files in `.envs/.local/` that work out of the box for local development:
+- `.envs/.local/.django` - Django configuration
+- `.envs/.local/.postgres` - PostgreSQL configuration with safe defaults
+
+These files are already in the repository and require no changes for local development. For production deployments, you'll need to create `.envs/.production/` files with your actual secrets (see Production section below).
+
+### Getting Started
+
 1. **Build the Docker images:**
    ```bash
    docker compose -f docker-compose.local.yml build
@@ -177,6 +187,26 @@ uv run ruff format .
 # Type checking
 uv run mypy .
 ```
+
+## Production Deployment
+
+For production deployments, you'll need to create environment files in `.envs/.production/`:
+
+1. **Copy the example files:**
+   ```bash
+   cp .envs/.production/.django.example .envs/.production/.django
+   cp .envs/.production/.postgres.example .envs/.production/.postgres
+   ```
+
+2. **Edit `.envs/.production/.django`** with your production settings:
+   - Generate a secure `DJANGO_SECRET_KEY` (50+ characters)
+   - Set your `DJANGO_ALLOWED_HOSTS`
+   - Configure email settings (MAILGUN_API_KEY, etc.)
+   - Set a secure, random `DJANGO_ADMIN_URL`
+
+3. **Edit `.envs/.production/.postgres`** with secure database credentials
+
+**Note:** The actual `.django` and `.postgres` files are gitignored and will never be committed. Only the `.example` templates are in the repository. Keep your secrets safe!
 
 ## Contributing
 
