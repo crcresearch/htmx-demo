@@ -64,10 +64,8 @@ These files are already in the repository and require no changes for local devel
    docker compose -f docker-compose.local.yml up -d
    ```
 
-3. **Run migrations and load sample data:**
+3. **Load sample data:**
    ```bash
-   docker compose -f docker-compose.local.yml run --rm django python manage.py migrate
-   
    # Load curated fixture (recommended for demos)
    docker compose -f docker-compose.local.yml run --rm django python manage.py loaddata sample_data
    
